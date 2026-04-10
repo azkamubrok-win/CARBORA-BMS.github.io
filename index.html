@@ -1,0 +1,2273 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CARBORA — Sustainable Energy Systems</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#F0EDE6;--bg2:#E8E4DC;--dark:#0D1F1A;--dark2:#132B24;
+  --teal:#0B6E4F;--teal-light:#1A9E75;--teal-bright:#2ECFA0;
+  --accent:#0D5C42;--text:#1C1C1A;--text2:#4A5550;--text3:#7A8A85;
+  --white:#FFFFFF;--card:#FFFFFF;--border:rgba(11,110,79,0.12);
+  --font-display:'Syne',sans-serif;--font-body:'DM Sans',sans-serif;
+}
+html{scroll-behavior:smooth}
+body{font-family:var(--font-body);background:var(--bg);color:var(--text);overflow-x:hidden}
+
+/* NAV */
+nav{position:fixed;top:0;left:0;right:0;z-index:100;background:rgba(240,237,230,0.92);backdrop-filter:blur(12px);border-bottom:1px solid var(--border);padding:0 40px;display:flex;align-items:center;height:56px;gap:40px}
+.nav-logo{font-family:var(--font-display);font-weight:800;font-size:18px;color:var(--dark);letter-spacing:-0.5px;margin-right:16px}
+.nav-links{display:flex;gap:28px;flex:1}
+.nav-link{font-size:14px;font-weight:500;color:var(--text2);cursor:pointer;transition:color .2s;text-decoration:none;padding:4px 0;border-bottom:2px solid transparent}
+.nav-link.active,.nav-link:hover{color:var(--teal);border-bottom-color:var(--teal)}
+.nav-right{display:flex;align-items:center;gap:12px;margin-left:auto}
+.nav-icon{width:34px;height:34px;border-radius:50%;border:1px solid var(--border);display:flex;align-items:center;justify-content:center;cursor:pointer;background:transparent;transition:background .2s}
+.nav-icon:hover{background:var(--bg2)}
+.nav-icon svg{width:16px;height:16px;stroke:var(--text2);fill:none;stroke-width:1.8}
+.btn-connect{background:var(--dark);color:var(--white);border:none;padding:9px 20px;border-radius:8px;font-family:var(--font-body);font-size:13px;font-weight:500;cursor:pointer;transition:background .2s}
+.btn-connect:hover{background:var(--teal)}
+.avatar{width:32px;height:32px;border-radius:50%;background:var(--teal-light);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:600;color:white}
+
+/* LIVE INDICATOR */
+.live-badge{display:flex;align-items:center;gap:6px;font-size:11px;font-weight:600;letter-spacing:1px;color:var(--teal);padding:4px 10px;background:rgba(11,110,79,0.08);border-radius:20px;border:1px solid rgba(11,110,79,0.15)}
+.live-dot{width:7px;height:7px;border-radius:50%;background:var(--teal-bright);animation:pulse 1.8s ease-in-out infinite}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:0.5;transform:scale(0.85)}}
+
+/* PAGES */
+.page{display:none;padding-top:56px;min-height:100vh}
+.page.active{display:block}
+
+/* ===== DASHBOARD ===== */
+#page-dashboard{background:var(--bg)}
+.dash-header{padding:48px 40px 32px;display:flex;justify-content:space-between;align-items:flex-start}
+.dash-header h1{font-family:var(--font-display);font-size:42px;font-weight:700;letter-spacing:-1px;line-height:1.1}
+.dash-header h1 span{color:var(--teal)}
+.dash-subtitle{font-size:14px;color:var(--text3);margin-top:8px}
+.dash-top-stats{display:flex;gap:12px;margin-top:16px}
+.dash-stat-pill{padding:8px 16px;border-radius:30px;background:var(--card);border:1px solid var(--border);display:flex;align-items:center;gap:8px}
+.dash-stat-pill-label{font-size:11px;color:var(--text3)}
+.dash-stat-pill-val{font-family:var(--font-display);font-size:14px;font-weight:700;color:var(--text)}
+.dash-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;padding:0 40px 24px}
+.card{background:var(--card);border-radius:16px;border:1px solid var(--border);padding:24px;position:relative;overflow:hidden}
+.card-sm{padding:20px}
+.card-label{font-size:11px;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:var(--text3);margin-bottom:16px}
+
+/* SOC Card */
+.soc-card{grid-row:span 2;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:32px 24px}
+.soc-ring-wrap{position:relative;width:180px;height:180px;margin:16px 0}
+.soc-ring-wrap svg{width:180px;height:180px;transform:rotate(-90deg)}
+.soc-ring-bg{fill:none;stroke:#E8E4DC;stroke-width:12}
+.soc-ring-fg{fill:none;stroke:url(#socGrad);stroke-width:12;stroke-linecap:round;stroke-dasharray:502;stroke-dashoffset:502;transition:stroke-dashoffset 2s cubic-bezier(.4,0,.2,1)}
+.soc-center{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);text-align:center}
+.soc-pct{font-family:var(--font-display);font-size:40px;font-weight:700;color:var(--text);line-height:1}
+.soc-stable{font-size:11px;font-weight:600;letter-spacing:2px;color:var(--text3);margin-top:4px}
+.soc-metrics{display:grid;grid-template-columns:1fr 1fr;gap:0;width:100%;border-top:1px solid var(--border);margin-top:16px;padding-top:16px}
+.soc-metric-item{padding:0 8px}
+.soc-metric-item:first-child{border-right:1px solid var(--border)}
+.soc-metric-label{font-size:10px;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:var(--text3)}
+.soc-metric-val{font-family:var(--font-display);font-size:18px;font-weight:600;color:var(--text);margin-top:4px}
+.soc-metric-val.green{color:var(--teal-light)}
+
+/* SOH */
+.soh-pct{font-family:var(--font-display);font-size:52px;font-weight:700;color:var(--text);line-height:1;margin:8px 0}
+.soh-bar{height:6px;background:#E8E4DC;border-radius:3px;margin-top:16px;overflow:hidden}
+.soh-bar-fill{height:100%;width:0%;background:linear-gradient(90deg,var(--teal),var(--teal-bright));border-radius:3px;transition:width 2s cubic-bezier(.4,0,.2,1)}
+.soh-desc{font-size:13px;color:var(--text2);margin-bottom:8px}
+.soh-lifecycle-row{display:flex;justify-content:space-between;align-items:center;margin-top:12px;font-size:11px;color:var(--text3)}
+
+/* Temp */
+.temp-grid{display:grid;gap:12px}
+.temp-row{display:flex;justify-content:space-between;align-items:center;padding:12px 16px;background:var(--bg);border-radius:10px}
+.temp-row-left{display:flex;align-items:center;gap:10px}
+.temp-icon{width:28px;height:28px;border-radius:7px;background:rgba(11,110,79,0.1);display:flex;align-items:center;justify-content:center}
+.temp-icon svg{width:14px;height:14px;stroke:var(--teal);fill:none;stroke-width:2}
+.temp-label{font-size:11px;color:var(--text3);font-weight:500}
+.temp-val{font-family:var(--font-display);font-size:16px;font-weight:600;color:var(--text)}
+.badge{font-size:10px;font-weight:700;letter-spacing:0.5px;padding:3px 8px;border-radius:5px}
+.badge-green{background:rgba(26,158,117,0.12);color:var(--teal)}
+.badge-blue{background:rgba(11,110,79,0.08);color:var(--teal)}
+.badge-amber{background:rgba(186,117,23,0.12);color:#BA7517}
+
+/* Animated number counter */
+.counter{display:inline-block}
+
+/* Voltage */
+.volt-card{grid-column:span 2}
+.volt-chart-wrap{position:relative;height:140px;margin-top:12px}
+
+/* Cell Balance */
+.cell-card{grid-column:1}
+.cell-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px}
+.cell-grid{display:grid;grid-template-columns:repeat(12,1fr);gap:4px}
+.cell{border-radius:4px;background:var(--teal-light);opacity:0.8;transition:all .3s ease;cursor:pointer}
+.cell:hover{transform:scaleY(1.15);opacity:1}
+.cell.low{opacity:0.4;background:var(--teal)}
+.cell.high{opacity:1;background:var(--teal-bright)}
+.cell-footer{display:flex;justify-content:space-between;margin-top:8px;font-size:11px;color:var(--text3)}
+
+/* Cycle counter card */
+.cycle-mini-card{background:linear-gradient(135deg,var(--dark),var(--dark2));border-radius:12px;padding:16px;color:white;margin-top:12px}
+.cycle-progress-wrap{position:relative;height:6px;background:rgba(255,255,255,0.1);border-radius:3px;overflow:hidden;margin:8px 0}
+.cycle-progress-fill{height:100%;border-radius:3px;background:linear-gradient(90deg,var(--teal-bright),#5DCAA5);transition:width 2.5s cubic-bezier(.4,0,.2,1)}
+
+/* Activity */
+.activity-card{grid-column:span 2}
+.activity-list{display:flex;flex-direction:column;gap:12px;margin-top:4px}
+.activity-item{display:flex;align-items:flex-start;gap:12px;padding:12px;background:var(--bg);border-radius:10px}
+.activity-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;margin-top:5px}
+.activity-body{flex:1}
+.activity-title{font-size:13px;font-weight:500;color:var(--text)}
+.activity-desc{font-size:12px;color:var(--text3);margin-top:2px}
+.activity-time{font-size:11px;color:var(--text3);white-space:nowrap;margin-left:8px}
+
+/* Animated bar indicators */
+.spec-bar-item{display:flex;flex-direction:column;gap:6px;margin-bottom:14px}
+.spec-bar-label{display:flex;justify-content:space-between;font-size:12px;color:var(--text2)}
+.spec-bar-track{height:5px;background:var(--bg);border-radius:3px;overflow:hidden}
+.spec-bar-fill{height:100%;border-radius:3px;transition:width 2s cubic-bezier(.4,0,.2,1)}
+
+/* Research promo */
+.research-promo{margin:16px 40px 40px;background:var(--card);border-radius:16px;border:1px solid var(--border);display:grid;grid-template-columns:1fr 1fr;gap:0;overflow:hidden;min-height:240px}
+.promo-img{background:linear-gradient(135deg,#0D1F1A,#1A3A2E);position:relative;display:flex;align-items:center;justify-content:center;overflow:hidden}
+.promo-content{padding:40px;display:flex;flex-direction:column;justify-content:center}
+.promo-tag{font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--teal);margin-bottom:16px}
+.promo-title{font-family:var(--font-display);font-size:26px;font-weight:700;letter-spacing:-0.5px;line-height:1.25;margin-bottom:12px}
+.promo-desc{font-size:13px;color:var(--text2);line-height:1.7;margin-bottom:24px}
+.promo-btns{display:flex;gap:10px}
+.btn-dark{background:var(--dark);color:white;border:none;padding:11px 22px;border-radius:9px;font-family:var(--font-body);font-size:13px;font-weight:500;cursor:pointer;transition:background .2s}
+.btn-dark:hover{background:var(--teal)}
+.btn-outline{background:transparent;color:var(--text);border:1px solid var(--border);padding:11px 22px;border-radius:9px;font-family:var(--font-body);font-size:13px;font-weight:500;cursor:pointer;transition:all .2s}
+.btn-outline:hover{border-color:var(--teal);color:var(--teal)}
+
+/* ===== ANALYTICS ===== */
+#page-analytics{background:var(--bg)}
+.analytics-hero{padding:48px 40px 0}
+.analytics-tag{display:inline-block;background:var(--teal);color:white;font-size:10px;font-weight:700;letter-spacing:2px;padding:5px 12px;border-radius:6px;margin-bottom:20px}
+.analytics-hero h1{font-family:var(--font-display);font-size:40px;font-weight:700;letter-spacing:-1px;line-height:1.15;max-width:700px}
+.analytics-hero p{font-size:15px;color:var(--text2);margin-top:12px;max-width:560px;line-height:1.7}
+.analytics-main{display:grid;grid-template-columns:3fr 1.4fr;gap:16px;padding:24px 40px}
+.chart-card{background:var(--card);border-radius:16px;border:1px solid var(--border);padding:28px}
+.chart-title{font-family:var(--font-display);font-size:17px;font-weight:600;color:var(--text)}
+.chart-sub{font-size:12px;color:var(--text3);margin-top:4px}
+.chart-legend{display:flex;gap:16px;margin:16px 0 8px}
+.legend-item{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--text2)}
+.legend-dot{width:10px;height:10px;border-radius:2px}
+.energy-card{background:var(--dark);border-radius:16px;padding:28px;color:white;display:flex;flex-direction:column;justify-content:space-between}
+.energy-icon{width:42px;height:42px;border-radius:10px;background:rgba(46,207,160,0.2);display:flex;align-items:center;justify-content:center;margin-bottom:16px}
+.energy-icon svg{width:20px;height:20px;stroke:var(--teal-bright);fill:none;stroke-width:2}
+.energy-title{font-size:14px;font-weight:600;color:rgba(255,255,255,0.7);margin-bottom:8px}
+.energy-desc{font-size:12px;color:rgba(255,255,255,0.5);line-height:1.6;margin-bottom:24px}
+.energy-pct{font-family:var(--font-display);font-size:54px;font-weight:700;color:var(--teal-bright);line-height:1}
+.energy-label{font-size:11px;letter-spacing:1px;text-transform:uppercase;color:rgba(255,255,255,0.4);margin-top:4px}
+
+/* DoD Gauge */
+.dod-gauge-section{padding:0 40px 16px;display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px}
+.dod-card{background:var(--card);border-radius:16px;border:1px solid var(--border);padding:28px;display:flex;flex-direction:column;align-items:center;text-align:center}
+.dod-ring-wrap{position:relative;width:120px;height:120px;margin:12px 0}
+.dod-ring-wrap svg{width:120px;height:120px;transform:rotate(-90deg)}
+.dod-ring-bg{fill:none;stroke:#E8E4DC;stroke-width:10}
+.dod-ring-fg{fill:none;stroke-width:10;stroke-linecap:round;stroke-dasharray:339;stroke-dashoffset:339;transition:stroke-dashoffset 2.2s cubic-bezier(.4,0,.2,1)}
+.dod-center{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);text-align:center}
+.dod-val{font-family:var(--font-display);font-size:24px;font-weight:700}
+
+/* Molecular */
+.molecular-section{display:grid;grid-template-columns:1fr 1fr;gap:16px;padding:0 40px}
+.mol-img-card{background:var(--dark);border-radius:16px;overflow:hidden;position:relative;min-height:300px;display:flex;align-items:flex-end}
+.mol-overlay{position:absolute;inset:0;background:linear-gradient(to top,rgba(13,31,26,.9) 0%,transparent 60%)}
+.mol-caption{position:relative;padding:24px;z-index:2}
+.mol-caption-title{font-family:var(--font-display);font-size:16px;font-weight:600;color:white;margin-bottom:6px}
+.mol-caption-desc{font-size:12px;color:rgba(255,255,255,0.6);line-height:1.6}
+.mol-info-card{background:var(--card);border-radius:16px;border:1px solid var(--border);padding:28px}
+.mol-tag{font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--teal);margin-bottom:16px}
+.mol-title{font-family:var(--font-display);font-size:24px;font-weight:700;letter-spacing:-0.5px;line-height:1.3;margin-bottom:24px}
+.mol-feature{display:flex;gap:14px;margin-bottom:18px}
+.mol-feat-icon{width:36px;height:36px;border-radius:9px;background:rgba(11,110,79,0.08);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.mol-feat-icon svg{width:16px;height:16px;stroke:var(--teal);fill:none;stroke-width:2}
+.mol-feat-title{font-size:13px;font-weight:600;color:var(--text);margin-bottom:3px}
+.mol-feat-desc{font-size:12px;color:var(--text3);line-height:1.6}
+
+/* LCA */
+.lca-section{padding:24px 40px 40px}
+.lca-card{background:var(--card);border-radius:16px;border:1px solid var(--border);padding:32px}
+.lca-inner{display:grid;grid-template-columns:1fr 1fr 1fr;gap:24px;align-items:start}
+.lca-left h3{font-family:var(--font-display);font-size:22px;font-weight:700;letter-spacing:-0.3px;margin-bottom:12px}
+.lca-left p{font-size:13px;color:var(--text2);line-height:1.7}
+.lca-metrics{margin-top:20px;display:flex;flex-direction:column;gap:10px}
+.lca-metric-row{display:flex;justify-content:space-between;align-items:center;font-size:13px;padding-bottom:10px;border-bottom:1px solid var(--border)}
+.lca-metric-row:last-child{border-bottom:none}
+.lca-metric-name{color:var(--text2)}
+.lca-metric-val{font-weight:600;color:var(--teal)}
+.lca-metric-val.red{color:#E24B4A}
+.co2-card{background:var(--bg);border-radius:12px;padding:24px}
+.co2-small{font-size:11px;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:var(--text3);margin-bottom:8px}
+.co2-bar-wrap{height:6px;background:#E8E4DC;border-radius:3px;margin:12px 0 8px;overflow:hidden}
+.co2-bar-fill{height:100%;border-radius:3px;transition:width 2s cubic-bezier(.4,0,.2,1)}
+.co2-label{font-size:11px;color:var(--text3)}
+
+/* GWh */
+.gwh-section{padding:0 40px 40px}
+.gwh-card{background:var(--card);border-radius:16px;border:1px solid var(--border);padding:32px}
+.gwh-header{text-align:center;margin-bottom:32px}
+.gwh-header h3{font-family:var(--font-display);font-size:22px;font-weight:700}
+.gwh-header p{font-size:13px;color:var(--text3);margin-top:6px}
+.gwh-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+.gwh-item{padding:20px;border-radius:12px;border:1px solid var(--border)}
+.gwh-item.highlight{background:var(--dark);border-color:var(--dark)}
+.gwh-year{font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--text3);margin-bottom:8px}
+.gwh-item.highlight .gwh-year{color:rgba(255,255,255,0.5)}
+.gwh-val{font-family:var(--font-display);font-size:28px;font-weight:700;color:var(--text)}
+.gwh-item.highlight .gwh-val{color:white}
+
+/* ===== RESEARCH ===== */
+#page-research{background:var(--bg)}
+.research-hero{padding:48px 40px 32px}
+.research-hero h1{font-family:var(--font-display);font-size:42px;font-weight:700;letter-spacing:-1px;line-height:1.1;max-width:600px}
+.research-hero h1 em{font-style:normal;color:var(--teal)}
+.research-hero p{font-size:15px;color:var(--text2);margin-top:14px;max-width:520px;line-height:1.7}
+.research-process{padding:0 40px 32px}
+.process-card{background:var(--dark);border-radius:16px;padding:36px;color:white}
+.process-steps{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}
+.process-step{padding:24px;background:rgba(255,255,255,0.05);border-radius:12px;border:1px solid rgba(255,255,255,0.08)}
+.step-num{font-family:var(--font-display);font-size:13px;font-weight:700;color:var(--teal-bright);margin-bottom:12px}
+.step-title{font-size:15px;font-weight:600;color:white;margin-bottom:8px}
+.step-desc{font-size:12px;color:rgba(255,255,255,0.5);line-height:1.7}
+.research-science{display:grid;grid-template-columns:1fr 1fr;gap:16px;padding:0 40px 32px}
+.sci-card{background:var(--card);border-radius:16px;border:1px solid var(--border);padding:28px}
+.sci-purity{font-family:var(--font-display);font-size:52px;font-weight:700;color:var(--teal);margin:12px 0 4px}
+.sci-features{display:flex;flex-direction:column;gap:14px;margin-top:20px}
+.sci-feat{display:flex;align-items:center;gap:12px;font-size:13px;color:var(--text2)}
+.sci-feat-check{width:20px;height:20px;border-radius:50%;background:rgba(11,110,79,0.1);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.sci-feat-check svg{width:10px;height:10px;stroke:var(--teal);fill:none;stroke-width:3}
+
+/* Capacity gauge */
+.capacity-ring-wrap{position:relative;width:160px;height:160px;margin:12px auto}
+.capacity-ring-wrap svg{width:160px;height:160px;transform:rotate(-90deg)}
+.cap-bg{fill:none;stroke:#E8E4DC;stroke-width:10}
+.cap-fg{fill:none;stroke:url(#capGrad);stroke-width:10;stroke-linecap:round;stroke-dasharray:453;stroke-dashoffset:453;transition:stroke-dashoffset 2.5s cubic-bezier(.4,0,.2,1)}
+
+/* Thermal */
+.thermal-section{padding:0 40px 40px}
+.thermal-card{background:var(--card);border-radius:16px;border:1px solid var(--border);padding:32px}
+.thermal-inner{display:grid;grid-template-columns:1fr 2fr;gap:32px;align-items:center}
+.thermal-stat h3{font-family:var(--font-display);font-size:20px;font-weight:700;letter-spacing:-0.3px;margin-bottom:12px}
+.thermal-stat p{font-size:13px;color:var(--text2);line-height:1.7}
+.thermal-temp{font-family:var(--font-display);font-size:42px;font-weight:700;color:var(--teal);margin:16px 0 4px}
+.thermal-temp-sub{font-size:12px;color:var(--text3)}
+.thermal-chart-wrap{height:180px;position:relative}
+
+/* Temp range bars */
+.temp-range-display{margin-top:20px}
+.temp-slider-wrap{position:relative;height:24px;background:var(--bg);border-radius:12px;overflow:hidden;margin:8px 0}
+.temp-slider-fill{position:absolute;top:4px;bottom:4px;border-radius:8px;background:linear-gradient(90deg,#378ADD,var(--teal-bright));transition:all 2s ease}
+.temp-slider-marker{position:absolute;top:50%;transform:translateY(-50%);width:3px;height:16px;background:var(--dark);border-radius:2px;opacity:0.4}
+
+/* ===== ABOUT ===== */
+#page-about{background:var(--bg)}
+.about-hero{min-height:380px;background:var(--dark);display:grid;grid-template-columns:1fr 1fr;overflow:hidden;position:relative}
+.about-hero-content{padding:80px 40px 60px;display:flex;flex-direction:column;justify-content:center}
+.about-tag{display:inline-block;background:rgba(46,207,160,.15);color:var(--teal-bright);font-size:10px;font-weight:700;letter-spacing:2px;padding:5px 12px;border-radius:6px;margin-bottom:24px;width:fit-content}
+.about-hero h1{font-family:var(--font-display);font-size:42px;font-weight:800;letter-spacing:-1px;line-height:1.15;color:white}
+.about-hero h1 span{color:var(--teal-bright)}
+.about-hero p{font-size:14px;color:rgba(255,255,255,0.5);margin-top:16px;line-height:1.7;max-width:420px}
+.about-hero-img{background:linear-gradient(135deg,#0D3D2E,#1A5A40);position:relative;overflow:hidden}
+.geo-svg{position:absolute;inset:0;width:100%;height:100%;opacity:.7}
+.mission-section{display:grid;grid-template-columns:1fr 1fr;gap:16px;padding:32px 40px}
+.mission-card{background:var(--card);border-radius:16px;border:1px solid var(--border);padding:32px}
+.mission-card.dark{background:var(--dark);border-color:transparent}
+.mission-card h3{font-family:var(--font-display);font-size:20px;font-weight:700;letter-spacing:-0.3px;margin-bottom:16px}
+.mission-card.dark h3{color:white}
+.mission-card p{font-size:14px;color:var(--text2);line-height:1.8}
+.mission-card.dark p{color:rgba(255,255,255,0.55)}
+.mission-accent{width:4px;height:40px;background:var(--teal);border-radius:2px;margin-bottom:20px}
+.architects{padding:0 40px 32px}
+.architects h2{font-family:var(--font-display);font-size:28px;font-weight:700;letter-spacing:-0.5px;text-align:center;margin-bottom:8px}
+.architects-sub{font-size:14px;color:var(--text3);text-align:center;margin-bottom:28px}
+.arch-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+.arch-card{background:var(--card);border-radius:16px;border:1px solid var(--border);padding:28px}
+.arch-icon{width:48px;height:48px;border-radius:12px;display:flex;align-items:center;justify-content:center;margin-bottom:16px}
+.arch-icon svg{width:22px;height:22px;stroke:white;fill:none;stroke-width:2}
+.arch-title{font-size:16px;font-weight:600;color:var(--text);margin-bottom:8px}
+.arch-desc{font-size:12px;color:var(--text3);line-height:1.7;margin-bottom:16px}
+.arch-avatars{display:flex;align-items:center}
+.arch-av{width:26px;height:26px;border-radius:50%;border:2px solid white;font-size:9px;font-weight:700;display:flex;align-items:center;justify-content:center;margin-left:-4px;color:white}
+.arch-av:first-child{margin-left:0}
+.arch-count{font-size:12px;color:var(--text3);margin-left:8px}
+.roadmap-section{background:var(--dark);padding:60px 40px}
+.roadmap-section h2{font-family:var(--font-display);font-size:32px;font-weight:700;letter-spacing:-0.5px;color:white;margin-bottom:8px}
+.roadmap-sub{font-size:13px;color:rgba(255,255,255,0.4);margin-bottom:48px}
+.roadmap-tag{float:right;font-size:10px;font-weight:700;letter-spacing:2px;color:rgba(255,255,255,0.3)}
+.roadmap-phases{display:flex;flex-direction:column;gap:24px}
+.phase-item{display:grid;grid-template-columns:180px 1fr;gap:0;align-items:start;position:relative}
+.phase-item::before{content:'';position:absolute;left:189px;top:36px;bottom:-36px;width:1px;background:rgba(255,255,255,0.08)}
+.phase-item:last-child::before{display:none}
+.phase-dot{width:12px;height:12px;border-radius:50%;background:var(--teal-bright);position:absolute;left:184px;top:30px}
+.phase-left{padding-right:32px;padding-top:24px}
+.phase-num{font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:rgba(255,255,255,0.3);margin-bottom:4px}
+.phase-name-small{font-size:14px;font-weight:600;color:rgba(255,255,255,0.6)}
+.phase-card{background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.08);border-radius:12px;padding:24px;margin-left:24px}
+.phase-card-title{font-family:var(--font-display);font-size:18px;font-weight:700;color:white;margin-bottom:8px}
+.phase-card-desc{font-size:13px;color:rgba(255,255,255,0.5);line-height:1.7}
+.trusted{padding:40px;text-align:center;border-top:1px solid var(--border)}
+.trusted-label{font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--text3);margin-bottom:24px}
+.trusted-logos{display:flex;justify-content:center;gap:48px;align-items:center}
+.trusted-logo{font-family:var(--font-display);font-size:13px;font-weight:700;color:var(--text3);letter-spacing:1px;display:flex;align-items:center;gap:8px}
+.trusted-logo svg{width:18px;height:18px;stroke:var(--text3);fill:none;stroke-width:1.5}
+
+/* ===== CONNECT ===== */
+#page-connect{background:var(--dark);min-height:100vh;display:flex;flex-direction:column}
+.connect-main{flex:1;display:grid;grid-template-columns:1fr 1fr;padding:60px 40px 40px;gap:60px;align-items:center}
+.connect-left h1{font-family:var(--font-display);font-size:48px;font-weight:800;letter-spacing:-1.5px;line-height:1.1;color:white;margin-bottom:20px}
+.connect-left h1 span{color:var(--teal-bright)}
+.connect-left p{font-size:15px;color:rgba(255,255,255,0.5);line-height:1.8;margin-bottom:36px}
+.connect-stats{display:flex;gap:32px;margin-bottom:40px}
+.connect-stat-val{font-family:var(--font-display);font-size:28px;font-weight:700;color:white}
+.connect-stat-label{font-size:12px;color:rgba(255,255,255,0.4);margin-top:2px}
+.btn-teal{background:var(--teal-bright);color:var(--dark);border:none;padding:14px 32px;border-radius:10px;font-family:var(--font-body);font-size:14px;font-weight:600;cursor:pointer;transition:all .2s;display:inline-flex;align-items:center;gap:8px}
+.btn-teal:hover{background:#1DB888;transform:translateY(-1px)}
+.btn-teal svg{width:16px;height:16px;stroke:var(--dark);fill:none;stroke-width:2.5}
+.connect-right{background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:20px;padding:36px}
+.connect-form-title{font-family:var(--font-display);font-size:20px;font-weight:700;color:white;margin-bottom:6px}
+.connect-form-sub{font-size:13px;color:rgba(255,255,255,0.4);margin-bottom:28px}
+.form-group{margin-bottom:16px}
+.form-label{font-size:12px;font-weight:500;color:rgba(255,255,255,0.5);margin-bottom:6px;display:block}
+.form-input{width:100%;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);border-radius:8px;padding:12px 16px;font-family:var(--font-body);font-size:13px;color:white;outline:none;transition:border-color .2s}
+.form-input:focus{border-color:var(--teal-bright)}
+.form-input::placeholder{color:rgba(255,255,255,0.2)}
+textarea.form-input{resize:vertical;min-height:100px}
+.form-submit{width:100%;background:var(--teal);color:white;border:none;padding:14px;border-radius:9px;font-family:var(--font-body);font-size:14px;font-weight:600;cursor:pointer;transition:background .2s;margin-top:8px}
+.form-submit:hover{background:var(--teal-light)}
+
+footer{background:var(--dark);border-top:1px solid rgba(255,255,255,0.06);padding:28px 40px;display:flex;justify-content:space-between;align-items:center}
+.footer-logo{font-family:var(--font-display);font-size:16px;font-weight:800;color:white}
+.footer-links{display:flex;gap:24px}
+.footer-link{font-size:12px;color:rgba(255,255,255,0.4);cursor:pointer;transition:color .2s;text-decoration:none}
+.footer-link:hover{color:rgba(255,255,255,0.7)}
+.footer-copy{font-size:12px;color:rgba(255,255,255,0.25)}
+.footer-light{background:var(--bg2);border-top:1px solid var(--border);padding:28px 40px;display:flex;justify-content:space-between;align-items:center}
+.footer-light .footer-logo{color:var(--dark)}
+.footer-light .footer-link{color:var(--text3)}
+.footer-light .footer-copy{color:var(--text3)}
+
+/* TOOLTIP */
+.spec-tooltip{position:relative;display:inline-block;cursor:help}
+.spec-tooltip:hover::after{content:attr(data-tip);position:absolute;bottom:120%;left:50%;transform:translateX(-50%);background:var(--dark);color:white;font-size:11px;padding:6px 10px;border-radius:7px;white-space:nowrap;z-index:10}
+
+/* Animations */
+@keyframes fadeUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+@keyframes shimmer{0%{transform:translateX(-100%)}100%{transform:translateX(200%)}}
+@keyframes spin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
+.page.active .dash-header,.page.active .analytics-hero,.page.active .research-hero,.page.active .about-hero-content,.page.active .connect-left{animation:fadeUp .5s ease both}
+.page.active .card,.page.active .chart-card,.page.active .energy-card{animation:fadeUp .5s ease both;animation-delay:.1s}
+
+/* Realtime flicker */
+@keyframes flicker{0%,100%{opacity:1}45%{opacity:0.7}50%{opacity:1}55%{opacity:0.8}}
+.realtime-val{animation:flicker 4s ease-in-out infinite}
+
+/* =============================================
+   RESPONSIVE — TABLET (≤900px)
+   ============================================= */
+@media(max-width:900px){
+  .dash-grid{grid-template-columns:1fr 1fr}
+  .soc-card{grid-column:span 2}
+  .analytics-main{grid-template-columns:1fr}
+  .research-science{grid-template-columns:1fr}
+  .about-hero{grid-template-columns:1fr}
+  .about-hero-img{display:none}
+  .connect-main{grid-template-columns:1fr;gap:32px}
+  .lca-inner{grid-template-columns:1fr 1fr;gap:16px}
+}
+
+/* =============================================
+   RESPONSIVE — MOBILE (≤768px)
+   ============================================= */
+@media(max-width:768px){
+
+  /* NAV */
+  nav{padding:0 16px;gap:0;height:52px}
+  .nav-logo{font-size:16px;margin-right:auto}
+  .nav-links{display:none}
+  .btn-connect{display:none}
+  .avatar{display:none}
+  .live-badge{font-size:10px;padding:3px 8px}
+  .nav-right{gap:6px}
+  #hamburger{display:flex!important}
+
+  /* PAGES */
+  .page{padding-top:52px}
+
+  /* DASHBOARD HEADER */
+  .dash-header{padding:20px 16px 12px;flex-direction:column;gap:8px}
+  .dash-header h1{font-size:24px;letter-spacing:-0.5px}
+  .dash-subtitle{font-size:12px}
+  .dash-top-stats{flex-wrap:wrap;gap:6px;margin-top:8px}
+  .dash-stat-pill{padding:5px 10px;flex:1;min-width:calc(50% - 4px)}
+  .dash-stat-pill-label{font-size:10px}
+  .dash-stat-pill-val{font-size:12px}
+
+  /* DASHBOARD GRID — full single column */
+  .dash-grid{grid-template-columns:1fr;padding:0 12px 16px;gap:10px}
+  .volt-card,.cell-card,.activity-card{grid-column:1}
+  .soc-card{grid-row:auto;grid-column:1}
+
+  /* CARDS */
+  .card{padding:16px}
+  .card-sm{padding:14px}
+  .card-label{font-size:10px;margin-bottom:10px}
+
+  /* SOC RING */
+  .soc-card{padding:20px 16px;align-items:center}
+  .soc-ring-wrap{width:140px;height:140px;margin:8px 0}
+  .soc-ring-wrap svg{width:140px;height:140px}
+  .soc-ring-bg,.soc-ring-fg{stroke-width:10}
+  .soc-pct{font-size:28px}
+  .soc-stable{font-size:10px}
+  .soc-metrics{margin-top:12px;padding-top:12px}
+  .soc-metric-val{font-size:15px}
+  .soc-metric-label{font-size:9px}
+
+  /* SOH */
+  .soh-pct{font-size:34px;margin:4px 0}
+  .soh-desc{font-size:12px}
+  .soh-bar{margin-top:10px}
+  .soh-lifecycle-row{font-size:10px;flex-wrap:wrap;gap:4px;margin-top:8px}
+  .cycle-mini-card{padding:12px;margin-top:10px;border-radius:10px}
+
+  /* TEMP/VOLT CARD */
+  .temp-grid{gap:8px}
+  .temp-row{padding:10px 12px}
+  .temp-val{font-size:14px}
+  .temp-label{font-size:10px}
+  .temp-icon{width:24px;height:24px;border-radius:6px}
+  .temp-icon svg{width:12px;height:12px}
+  .badge{font-size:9px;padding:2px 6px}
+
+  /* VOLTAGE CHART */
+  .volt-chart-wrap{height:100px;margin-top:8px}
+
+  /* CELL GRID */
+  .cell-grid{grid-template-columns:repeat(8,1fr);gap:3px}
+  .cell-footer{font-size:10px;margin-top:6px}
+  .cell-header{margin-bottom:10px}
+
+  /* CHARGE/DISCHARGE - stack to single col */
+  .activity-card > .card-label{margin-bottom:10px}
+  #charge-discharge-grid{grid-template-columns:1fr!important;gap:10px!important}
+  .spec-bar-label{font-size:11px}
+  .spec-bar-item{margin-bottom:10px}
+
+  /* ACTIVITY */
+  .activity-item{padding:10px}
+  .activity-title{font-size:12px}
+  .activity-desc{font-size:11px}
+  .activity-time{font-size:10px}
+
+  /* RESEARCH PROMO */
+  .research-promo{grid-template-columns:1fr;margin:10px 12px 24px}
+  .promo-img{display:none}
+  .promo-content{padding:20px}
+  .promo-tag{font-size:9px}
+  .promo-title{font-size:18px;margin-bottom:8px}
+  .promo-desc{font-size:12px;line-height:1.6;margin-bottom:14px}
+  .promo-btns{flex-direction:column;gap:8px}
+  .btn-dark,.btn-outline{width:100%;text-align:center;padding:11px;font-size:13px}
+
+  /* FOOTER LIGHT */
+  .footer-light{flex-direction:column;gap:10px;padding:16px;text-align:center}
+  .footer-links{flex-wrap:wrap;justify-content:center;gap:10px}
+  .footer-copy{font-size:11px}
+
+  /* ANALYTICS PAGE */
+  .analytics-hero{padding:20px 16px 0}
+  .analytics-hero h1{font-size:22px;line-height:1.2}
+  .analytics-hero p{font-size:12px;margin-top:8px}
+  .analytics-tag{font-size:9px;padding:3px 10px;margin-bottom:12px}
+
+  /* DOD GAUGES — horizontal row on mobile */
+  .dod-gauge-section{grid-template-columns:1fr 1fr 1fr;padding:12px 12px;gap:8px}
+  .dod-card{padding:14px 10px}
+  .dod-ring-wrap{width:80px;height:80px;margin:6px 0}
+  .dod-ring-wrap svg{width:80px;height:80px}
+  .dod-ring-bg,.dod-ring-fg{stroke-width:8}
+  .dod-val{font-size:16px}
+  .dod-card > div:last-child{font-size:10px}
+
+  /* ANALYTICS MAIN */
+  .analytics-main{grid-template-columns:1fr;padding:0 12px;gap:10px}
+  .chart-card{padding:16px}
+  .chart-title{font-size:14px}
+  .chart-sub{font-size:11px}
+  .energy-card{padding:20px}
+  .energy-pct{font-size:40px}
+  .energy-title{font-size:13px}
+  .energy-desc{font-size:11px;line-height:1.5}
+  .chart-legend{flex-wrap:wrap;gap:6px;margin:8px 0 4px}
+  .legend-item{font-size:11px}
+
+  /* C-RATE chart wrapper */
+  #page-analytics > div[style*="padding:0 40px"]{padding:0 12px 10px!important}
+
+  /* MOLECULAR */
+  .molecular-section{grid-template-columns:1fr;padding:0 12px;gap:10px}
+  .mol-img-card{display:none}
+  .mol-info-card{padding:16px}
+  .mol-tag{font-size:9px;margin-bottom:10px}
+  .mol-title{font-size:18px;margin-bottom:16px}
+  .mol-feature{gap:10px;margin-bottom:12px}
+  .mol-feat-title{font-size:12px}
+  .mol-feat-desc{font-size:11px}
+
+  /* LCA */
+  .lca-section{padding:0 12px 12px}
+  .lca-card{padding:16px}
+  .lca-inner{grid-template-columns:1fr;gap:14px}
+  .lca-left h3{font-size:17px}
+  .lca-left p{font-size:12px}
+  .lca-metric-row{font-size:12px}
+
+  /* GWH */
+  .gwh-section{padding:0 12px 24px}
+  .gwh-card{padding:18px}
+  .gwh-header{margin-bottom:16px}
+  .gwh-header h3{font-size:17px}
+  .gwh-grid{grid-template-columns:1fr 1fr;gap:8px}
+  .gwh-val{font-size:20px}
+  .gwh-year{font-size:9px}
+
+  /* RESEARCH PAGE */
+  .research-hero{padding:20px 16px 12px}
+  .research-hero h1{font-size:24px}
+  .research-hero p{font-size:13px;margin-top:10px}
+  .research-process{padding:0 12px 14px}
+  .process-card{padding:20px}
+  .process-steps{grid-template-columns:1fr;gap:10px}
+  .process-step{padding:14px}
+  .step-title{font-size:13px}
+  .step-desc{font-size:11px}
+
+  .research-science{grid-template-columns:1fr;padding:0 12px 14px;gap:10px}
+  .sci-card{padding:18px}
+  .sci-purity{font-size:36px}
+  .sci-features{gap:10px;margin-top:14px}
+  .capacity-ring-wrap{width:120px;height:120px}
+  .capacity-ring-wrap svg{width:120px;height:120px}
+
+  .thermal-section{padding:0 12px 24px}
+  .thermal-card{padding:20px}
+  .thermal-inner{grid-template-columns:1fr;gap:14px}
+  .thermal-stat h3{font-size:17px}
+  .thermal-temp{font-size:32px;margin:10px 0 2px}
+  .thermal-chart-wrap{height:140px}
+
+  /* ABOUT PAGE */
+  .about-hero{grid-template-columns:1fr;min-height:auto}
+  .about-hero-content{padding:28px 16px 20px}
+  .about-hero h1{font-size:24px}
+  .about-hero p{font-size:12px;margin-top:10px}
+  .about-hero-img{display:none}
+
+  .mission-section{grid-template-columns:1fr;padding:12px;gap:10px}
+  .mission-card{padding:18px}
+  .mission-card h3{font-size:16px;margin-bottom:10px}
+  .mission-card p{font-size:12px;line-height:1.7}
+  .mission-accent{width:3px;height:32px;margin-bottom:14px}
+
+  .architects{padding:0 12px 20px}
+  .architects h2{font-size:20px}
+  .architects-sub{font-size:12px;margin-bottom:18px}
+  .arch-grid{grid-template-columns:1fr;gap:10px}
+  .arch-card{padding:18px}
+  .arch-title{font-size:14px}
+  .arch-desc{font-size:11px}
+
+  .roadmap-section{padding:24px 16px}
+  .roadmap-section h2{font-size:22px}
+  .roadmap-sub{font-size:12px;margin-bottom:28px}
+  .roadmap-tag{float:none;display:block;margin-bottom:8px;font-size:9px}
+  .roadmap-phases{gap:14px}
+  .phase-item{grid-template-columns:1fr;gap:4px}
+  .phase-item::before,.phase-dot{display:none}
+  .phase-left{padding:0 0 2px}
+  .phase-num{font-size:9px}
+  .phase-name-small{font-size:12px}
+  .phase-card{margin-left:0;padding:14px}
+  .phase-card-title{font-size:15px}
+  .phase-card-desc{font-size:12px}
+
+  .trusted{padding:20px 16px}
+  .trusted-logos{flex-wrap:wrap;gap:16px;justify-content:center}
+  .trusted-logo{font-size:11px}
+
+  footer{flex-direction:column;gap:10px;padding:18px 16px;text-align:center}
+  footer .footer-links{flex-wrap:wrap;justify-content:center;gap:10px}
+
+  /* CONNECT PAGE */
+  .connect-main{grid-template-columns:1fr;padding:24px 16px;gap:20px}
+  .connect-left h1{font-size:26px;letter-spacing:-0.5px;margin-bottom:12px}
+  .connect-left p{font-size:13px;margin-bottom:20px}
+  .connect-stats{gap:16px;flex-wrap:wrap;margin-bottom:24px}
+  .connect-stat-val{font-size:20px}
+  .connect-stat-label{font-size:11px}
+  .btn-teal{padding:12px 24px;font-size:13px}
+  .connect-right{padding:18px 14px;border-radius:12px}
+  .connect-form-title{font-size:17px}
+  .form-group{margin-bottom:12px}
+  .form-label{font-size:11px}
+  .form-input{padding:10px 13px;font-size:13px}
+  textarea.form-input{min-height:80px}
+  .form-submit{padding:12px;font-size:13px}
+
+  /* NOTIF PANEL */
+  #notif-panel{width:calc(100vw - 24px);right:-8px}
+
+  /* CHART HEIGHTS */
+  #lifecycleChart,#crateChart{max-height:160px}
+  #thermalChart,#miniLifecycle{max-height:150px}
+}
+
+/* =============================================
+   RESPONSIVE — SMALL PHONE (≤400px)
+   ============================================= */
+@media(max-width:400px){
+  nav{padding:0 10px}
+  .live-badge{display:none}
+  .dash-header h1{font-size:20px}
+  .dash-stat-pill{min-width:calc(50% - 4px)}
+  .gwh-grid{grid-template-columns:1fr}
+  .dod-gauge-section{grid-template-columns:1fr;gap:8px}
+  .dod-ring-wrap{width:90px;height:90px}
+  .dod-ring-wrap svg{width:90px;height:90px}
+  .connect-stats{flex-direction:column;gap:10px}
+  .research-hero h1{font-size:20px}
+  .about-hero h1{font-size:20px}
+}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-logo">CARBORA</div>
+  <div class="nav-links">
+    <a class="nav-link active" onclick="showPage('dashboard',this)">Dashboard</a>
+    <a class="nav-link" onclick="showPage('analytics',this)">Analytics</a>
+    <a class="nav-link" onclick="showPage('research',this)">Research</a>
+    <a class="nav-link" onclick="showPage('about',this)">About</a>
+  </div>
+  <div class="nav-right">
+    <div class="live-badge"><div class="live-dot"></div>LIVE</div>
+
+    <!-- NOTIFICATION BELL -->
+    <div style="position:relative" id="notif-wrap">
+      <div class="nav-icon" id="notif-btn" onclick="toggleNotif()" style="position:relative;cursor:pointer">
+        <svg viewBox="0 0 24 24"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+        <span id="notif-badge" style="position:absolute;top:3px;right:3px;width:8px;height:8px;background:#E24B4A;border-radius:50%;border:1.5px solid var(--bg);display:block"></span>
+      </div>
+      <!-- Dropdown Panel -->
+      <div id="notif-panel" style="display:none;position:absolute;top:44px;right:0;width:320px;background:var(--card);border:1px solid var(--border);border-radius:14px;box-shadow:0 8px 32px rgba(0,0,0,0.12);z-index:200;overflow:hidden">
+        <div style="padding:16px 20px 12px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid var(--border)">
+          <span style="font-family:var(--font-display);font-size:14px;font-weight:700;color:var(--text)">Notifikasi</span>
+          <span onclick="clearAllNotif()" style="font-size:11px;color:var(--teal);cursor:pointer;font-weight:600">Tandai semua dibaca</span>
+        </div>
+        <div id="notif-list" style="max-height:320px;overflow-y:auto"></div>
+        <div style="padding:12px 20px;border-top:1px solid var(--border);text-align:center">
+          <span style="font-size:12px;color:var(--text3)">Notifikasi diperbarui setiap 3 detik</span>
+        </div>
+      </div>
+    </div>
+
+    <button class="btn-connect" onclick="showPage('connect',document.querySelector('.nav-link:last-of-type'))">Connect Battery</button>
+    <div class="avatar">CR</div>
+
+    <!-- HAMBURGER (mobile only) -->
+    <div id="hamburger" onclick="toggleMobileMenu()" style="display:none;flex-direction:column;gap:4px;cursor:pointer;padding:4px;margin-left:4px">
+      <span style="display:block;width:20px;height:2px;background:var(--text);border-radius:2px;transition:all .25s" id="hb1"></span>
+      <span style="display:block;width:20px;height:2px;background:var(--text);border-radius:2px;transition:all .25s" id="hb2"></span>
+      <span style="display:block;width:20px;height:2px;background:var(--text);border-radius:2px;transition:all .25s" id="hb3"></span>
+    </div>
+  </div>
+</nav>
+
+<!-- MOBILE NAV DRAWER -->
+<div id="mobile-drawer" style="display:none;position:fixed;top:52px;left:0;right:0;background:rgba(240,237,230,0.98);backdrop-filter:blur(12px);border-bottom:1px solid var(--border);z-index:99;padding:12px 16px 16px;flex-direction:column;gap:4px">
+  <a class="nav-link" style="padding:12px 8px;font-size:15px;border-bottom:1px solid var(--border)" onclick="showPage('dashboard',this);closeMobileMenu()">Dashboard</a>
+  <a class="nav-link" style="padding:12px 8px;font-size:15px;border-bottom:1px solid var(--border)" onclick="showPage('analytics',this);closeMobileMenu()">Analytics</a>
+  <a class="nav-link" style="padding:12px 8px;font-size:15px;border-bottom:1px solid var(--border)" onclick="showPage('research',this);closeMobileMenu()">Research</a>
+  <a class="nav-link" style="padding:12px 8px;font-size:15px;border-bottom:1px solid var(--border)" onclick="showPage('about',this);closeMobileMenu()">About</a>
+  <button class="btn-connect" style="margin-top:8px;width:100%;padding:12px" onclick="showPage('connect',null);closeMobileMenu()">Connect Battery</button>
+</div>
+
+<!-- ===== DASHBOARD ===== -->
+<div id="page-dashboard" class="page active">
+  <div class="dash-header">
+    <div>
+      <h1>Battery <span>Status.</span></h1>
+      <p class="dash-subtitle">System ID: CRB-4492-X &nbsp;|&nbsp; Last sync: <span id="lastSync">just now</span></p>
+      <div class="dash-top-stats">
+        <div class="dash-stat-pill">
+          <span class="dash-stat-pill-label">Pack Voltage</span>
+          <span class="dash-stat-pill-val realtime-val" id="packVoltLive">350 V</span>
+        </div>
+        <div class="dash-stat-pill">
+          <span class="dash-stat-pill-label">Per Cell</span>
+          <span class="dash-stat-pill-val">3.5 V</span>
+        </div>
+        <div class="dash-stat-pill">
+          <span class="dash-stat-pill-label">Energy/Cell</span>
+          <span class="dash-stat-pill-val">20.94 Wh</span>
+        </div>
+        <div class="dash-stat-pill">
+          <span class="dash-stat-pill-label">Efficiency</span>
+          <span class="dash-stat-pill-val" style="color:var(--teal-light)">95%</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="dash-grid">
+    <!-- SOC Ring -->
+    <div class="card soc-card">
+      <div class="card-label">State of Charge</div>
+      <div class="soc-ring-wrap">
+        <svg viewBox="0 0 180 180">
+          <defs>
+            <linearGradient id="socGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+              <stop offset="0%" style="stop-color:#0B6E4F"/>
+              <stop offset="100%" style="stop-color:#2ECFA0"/>
+            </linearGradient>
+          </defs>
+          <circle class="soc-ring-bg" cx="90" cy="90" r="80"/>
+          <circle class="soc-ring-fg" id="socRing" cx="90" cy="90" r="80"/>
+        </svg>
+        <div class="soc-center">
+          <div class="soc-pct"><span id="socVal">0</span>%</div>
+          <div class="soc-stable">STABLE</div>
+        </div>
+      </div>
+      <!-- Depth of Discharge indicator -->
+      <div style="width:100%;margin-bottom:12px">
+        <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--text3);margin-bottom:6px">
+          <span>Depth of Discharge (DoD)</span><span style="font-weight:700;color:var(--teal)">80%</span>
+        </div>
+        <div style="height:5px;background:#E8E4DC;border-radius:3px;overflow:hidden">
+          <div id="dodBar" style="height:100%;width:0%;background:linear-gradient(90deg,var(--teal),var(--teal-bright));border-radius:3px;transition:width 2.5s ease"></div>
+        </div>
+      </div>
+      <div class="soc-metrics">
+        <div class="soc-metric-item">
+          <div class="soc-metric-label">Capacity</div>
+          <div class="soc-metric-val">124.8 kWh</div>
+        </div>
+        <div class="soc-metric-item">
+          <div class="soc-metric-label">Current</div>
+          <div class="soc-metric-val green realtime-val" id="currentLive">+2.4 kW</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SOH -->
+    <div class="card">
+      <div class="card-label">Battery Health (SOH)</div>
+      <p class="soh-desc">Siklus hidup aktif. Degradasi dalam batas optimal.</p>
+      <div class="soh-pct"><span id="sohVal">0</span>%</div>
+      <div class="soh-bar"><div class="soh-bar-fill" id="sohBar"></div></div>
+      <div class="soh-lifecycle-row">
+        <span>0 siklus → 100%</span>
+        <span>5.000 → 90%</span>
+        <span>10.000 → 80% (EOL)</span>
+      </div>
+      <!-- Cycle count mini -->
+      <div class="cycle-mini-card">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
+          <span style="font-size:11px;color:rgba(255,255,255,0.5);font-weight:600;letter-spacing:1px">SIKLUS BERJALAN</span>
+          <span style="font-family:var(--font-display);font-size:16px;font-weight:700;color:var(--teal-bright)"><span id="cycleCount">0</span> / 10.000</span>
+        </div>
+        <div class="cycle-progress-wrap">
+          <div class="cycle-progress-fill" id="cycleBar"></div>
+        </div>
+        <div style="font-size:11px;color:rgba(255,255,255,0.3)">Estimasi sisa: <span style="color:rgba(255,255,255,0.6)">8.350 siklus</span></div>
+      </div>
+    </div>
+
+    <!-- Temp & Voltage -->
+    <div class="card card-sm">
+      <div class="temp-grid">
+        <div class="temp-row">
+          <div class="temp-row-left">
+            <div class="temp-icon"><svg viewBox="0 0 24 24"><path d="M14 14.76V3.5a2.5 2.5 0 0 0-5 0v11.26a4.5 4.5 0 1 0 5 0z"/></svg></div>
+            <div>
+              <div class="temp-label">Core Temp</div>
+              <div class="temp-val realtime-val" id="tempLive">22.4 °C</div>
+            </div>
+          </div>
+          <span class="badge badge-green" id="tempBadge">OPTIMAL</span>
+        </div>
+        <div class="temp-row" style="flex-direction:column;align-items:flex-start;gap:8px">
+          <div style="display:flex;justify-content:space-between;width:100%;align-items:center">
+            <div class="temp-row-left">
+              <div class="temp-icon"><svg viewBox="0 0 24 24"><path d="M14 14.76V3.5a2.5 2.5 0 0 0-5 0v11.26a4.5 4.5 0 1 0 5 0z"/></svg></div>
+              <div>
+                <div class="temp-label">Rentang Operasi</div>
+                <div class="temp-val" style="font-size:13px">15 – 30 °C</div>
+              </div>
+            </div>
+          </div>
+          <!-- Temperature range bar -->
+          <div style="width:100%;position:relative;height:20px;background:#E8E4DC;border-radius:10px;overflow:hidden">
+            <div id="tempRangeFill" style="position:absolute;top:4px;bottom:4px;left:0%;width:0%;background:linear-gradient(90deg,#378ADD,var(--teal-bright));border-radius:6px;transition:all 2s ease"></div>
+            <div style="position:absolute;top:3px;bottom:3px;left:0%;width:1px;background:#378ADD;opacity:0.5;transform:translateX(calc(15/30*100%))"></div>
+          </div>
+          <div style="width:100%;display:flex;justify-content:space-between;font-size:10px;color:var(--text3)">
+            <span>0°C</span><span style="color:var(--teal);font-weight:700"><span id="tempBarVal">22.4</span>°C</span><span>30°C</span>
+          </div>
+        </div>
+        <div class="temp-row">
+          <div class="temp-row-left">
+            <div class="temp-icon"><svg viewBox="0 0 24 24"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg></div>
+            <div>
+              <div class="temp-label">Pack Voltage</div>
+              <div class="temp-val realtime-val" id="voltLive">350 V</div>
+            </div>
+          </div>
+          <span class="badge badge-blue">NOMINAL</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Voltage History Chart -->
+    <div class="card volt-card">
+      <div style="display:flex;justify-content:space-between;align-items:center">
+        <div class="card-label" style="margin-bottom:0">Voltage History</div>
+        <div style="display:flex;gap:8px">
+          <span style="font-size:11px;color:var(--text3)">Nominal: <strong style="color:var(--teal)">350V</strong></span>
+          <span style="font-size:11px;color:var(--text3)">| Sel: <strong style="color:var(--teal)">3.5V</strong></span>
+        </div>
+      </div>
+      <div class="volt-chart-wrap">
+        <canvas id="voltChart" role="img"></canvas>
+      </div>
+    </div>
+
+    <!-- Cell Balance -->
+    <div class="card cell-card">
+      <div class="cell-header">
+        <div class="card-label" style="margin-bottom:0">Cell Balance (3.5V nom.)</div>
+        <span class="badge badge-green">AUTO-LEVELING</span>
+      </div>
+      <div class="cell-grid" id="cellGrid"></div>
+      <div class="cell-footer">
+        <span>Min: <span id="cellMin">—</span>V</span>
+        <span>Avg: <span id="cellAvg">3.50</span>V</span>
+        <span>Max: <span id="cellMax">—</span>V</span>
+      </div>
+    </div>
+
+    <!-- Charge/Discharge Specs -->
+    <div class="card activity-card">
+      <div class="card-label">Charge / Discharge Parameters</div>
+      <div id="charge-discharge-grid" style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+        <!-- Charging Rate -->
+        <div>
+          <div style="font-size:12px;font-weight:600;color:var(--text2);margin-bottom:12px">⚡ Charging Rate</div>
+          <div class="spec-bar-item">
+            <div class="spec-bar-label"><span>0.5C (min)</span><span id="chargeLow">—</span></div>
+            <div class="spec-bar-track"><div class="spec-bar-fill" id="chargeLowBar" style="width:0%;background:linear-gradient(90deg,#378ADD,var(--teal-bright))"></div></div>
+          </div>
+          <div class="spec-bar-item">
+            <div class="spec-bar-label"><span>1.0C (max)</span><span id="chargeHigh">—</span></div>
+            <div class="spec-bar-track"><div class="spec-bar-fill" id="chargeHighBar" style="width:0%;background:linear-gradient(90deg,var(--teal),var(--teal-bright))"></div></div>
+          </div>
+          <div style="margin-top:8px;font-size:11px;color:var(--text3)">Kapasitas: <span style="font-family:var(--font-display);color:var(--text);font-weight:600">629.3 mAh/g</span></div>
+        </div>
+        <!-- Discharging Rate -->
+        <div>
+          <div style="font-size:12px;font-weight:600;color:var(--text2);margin-bottom:12px">🔋 Discharging Rate</div>
+          <div class="spec-bar-item">
+            <div class="spec-bar-label"><span>2.0C (min)</span><span id="dischargeLow">—</span></div>
+            <div class="spec-bar-track"><div class="spec-bar-fill" id="dischargeLowBar" style="width:0%;background:linear-gradient(90deg,var(--teal),#5DCAA5)"></div></div>
+          </div>
+          <div class="spec-bar-item">
+            <div class="spec-bar-label"><span>3.0C (max)</span><span id="dischargeHigh">—</span></div>
+            <div class="spec-bar-track"><div class="spec-bar-fill" id="dischargeHighBar" style="width:0%;background:linear-gradient(90deg,#1A9E75,var(--teal-bright))"></div></div>
+          </div>
+          <div style="margin-top:8px;font-size:11px;color:var(--text3)">DoD: <span style="font-family:var(--font-display);color:var(--text);font-weight:600">80%</span></div>
+        </div>
+      </div>
+      <!-- Recent Activity -->
+      <div style="margin-top:16px;padding-top:16px;border-top:1px solid var(--border)">
+        <div style="font-size:11px;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:var(--text3);margin-bottom:10px">Recent Activity</div>
+        <div style="display:flex;flex-direction:column;gap:8px">
+          <div class="activity-item">
+            <div class="activity-dot" style="background:var(--teal-light)"></div>
+            <div class="activity-body">
+              <div class="activity-title">Cell Balance Completed</div>
+              <div class="activity-desc">Deviasi dikurangi ke 0.02V di seluruh pack.</div>
+            </div>
+            <div class="activity-time">12m ago</div>
+          </div>
+          <div class="activity-item">
+            <div class="activity-dot" style="background:#378ADD"></div>
+            <div class="activity-body">
+              <div class="activity-title">Max Power Charge Mode — 1C</div>
+              <div class="activity-desc">Pengisian cepat 150kW diaktifkan.</div>
+            </div>
+            <div class="activity-time">45m ago</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Research Promo -->
+  <div class="research-promo">
+    <div class="promo-img">
+      <svg style="position:absolute;inset:0;width:100%;height:100%;opacity:0.3" viewBox="0 0 400 260">
+        <defs><pattern id="hexPat" x="0" y="0" width="60" height="52" patternUnits="userSpaceOnUse">
+          <polygon points="30,2 58,17 58,35 30,50 2,35 2,17" fill="none" stroke="#2ECFA0" stroke-width="0.8"/>
+        </pattern></defs>
+        <rect width="400" height="260" fill="url(#hexPat)"/>
+      </svg>
+      <div style="position:relative;z-index:2;padding:40px;text-align:center">
+        <svg width="80" height="80" viewBox="0 0 80 80" style="opacity:0.6">
+          <circle cx="40" cy="40" r="30" fill="none" stroke="#2ECFA0" stroke-width="1.5"/>
+          <circle cx="40" cy="40" r="20" fill="none" stroke="#2ECFA0" stroke-width="1"/>
+          <circle cx="40" cy="40" r="10" fill="#2ECFA0" opacity="0.3"/>
+        </svg>
+      </div>
+    </div>
+    <div class="promo-content">
+      <div class="promo-tag">RESEARCH PHASE</div>
+      <div class="promo-title">Advanced Thermal Management Synthesis.</div>
+      <div class="promo-desc">Algoritma balancing AI kami memastikan sistem penyimpanan energi beroperasi pada efisiensi puncak 95%. Dengan analisis impedansi sel secara real-time, CARBORA memprediksi potensi thermal runaway sebelum terjadi, memperpanjang siklus hidup hingga 10.000 siklus.</div>
+      <div class="promo-btns">
+        <button class="btn-dark" onclick="exportData()">Export Data</button>
+        <button class="btn-outline">Detailed Report</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="footer-light">
+    <div class="footer-logo">CARBORA</div>
+    <div class="footer-links">
+      <a class="footer-link">Material Science</a>
+      <a class="footer-link">Life Cycle Assessment</a>
+      <a class="footer-link">Support</a>
+      <a class="footer-link">Privacy</a>
+    </div>
+    <div class="footer-copy">© 2024 CARBORA. Sustainable Energy Systems.</div>
+  </div>
+</div>
+
+<!-- ===== ANALYTICS ===== -->
+<div id="page-analytics" class="page">
+  <div class="analytics-hero">
+    <div class="analytics-tag">RESEARCH PHASE V4.2</div>
+    <h1>Battery Performance Metrics</h1>
+    <p>Data real-time sistem baterai CARBORA. Efisiensi 95%, DoD 80%, kapasitas spesifik 629.3 mAh/g — mengungguli grafit sintetis di setiap parameter kunci.</p>
+  </div>
+
+  <!-- DoD / Efficiency / Capacity Gauges -->
+  <div class="dod-gauge-section">
+    <div class="dod-card">
+      <div class="card-label" style="margin-bottom:4px">Depth of Discharge</div>
+      <div class="dod-ring-wrap">
+        <svg viewBox="0 0 120 120">
+          <circle class="dod-ring-bg" cx="60" cy="60" r="54"/>
+          <circle class="dod-ring-fg" id="dodRing" cx="60" cy="60" r="54" stroke="url(#dodGrad1)" style="stroke:var(--teal)"/>
+          <defs>
+            <linearGradient id="dodGrad1" x1="0%" y1="0%" x2="100%" y2="0%">
+              <stop offset="0%" style="stop-color:#0B6E4F"/>
+              <stop offset="100%" style="stop-color:#2ECFA0"/>
+            </linearGradient>
+          </defs>
+        </svg>
+        <div class="dod-center"><div class="dod-val" style="color:var(--teal)"><span id="dodValDisplay">0</span>%</div><div style="font-size:10px;color:var(--text3)">DoD</div></div>
+      </div>
+      <div style="font-size:12px;color:var(--text3);text-align:center">Max pengosongan aman<br><strong style="color:var(--text)">80% dari kapasitas penuh</strong></div>
+    </div>
+    <div class="dod-card">
+      <div class="card-label" style="margin-bottom:4px">Battery Efficiency</div>
+      <div class="dod-ring-wrap">
+        <svg viewBox="0 0 120 120">
+          <circle class="dod-ring-bg" cx="60" cy="60" r="54"/>
+          <circle class="dod-ring-fg" id="effRing" cx="60" cy="60" r="54" style="stroke:var(--teal-bright)"/>
+        </svg>
+        <div class="dod-center"><div class="dod-val" style="color:var(--teal-bright)"><span id="effValDisplay">0</span>%</div><div style="font-size:10px;color:var(--text3)">Efisiensi</div></div>
+      </div>
+      <div style="font-size:12px;color:var(--text3);text-align:center">Round-trip efficiency<br><strong style="color:var(--text)">Charging & discharging</strong></div>
+    </div>
+    <div class="dod-card">
+      <div class="card-label" style="margin-bottom:4px">Kapasitas Spesifik</div>
+      <div class="dod-ring-wrap">
+        <svg viewBox="0 0 120 120">
+          <circle class="dod-ring-bg" cx="60" cy="60" r="54"/>
+          <circle class="dod-ring-fg" id="capRing" cx="60" cy="60" r="54" style="stroke:#378ADD"/>
+        </svg>
+        <div class="dod-center">
+          <div class="dod-val" style="color:#378ADD;font-size:18px"><span id="capValDisplay">0</span></div>
+          <div style="font-size:10px;color:var(--text3)">mAh/g</div>
+        </div>
+      </div>
+      <div style="font-size:12px;color:var(--text3);text-align:center">Kapasitas per gram<br><strong style="color:var(--text)">vs. Grafit: ~372 mAh/g</strong></div>
+    </div>
+  </div>
+
+  <div class="analytics-main">
+    <!-- Life Cycle Chart -->
+    <div class="chart-card">
+      <div class="chart-title">Degradasi Siklus Hidup</div>
+      <div class="chart-sub">Kapasitas baterai vs. jumlah siklus — CARBORA vs. Grafit Industri</div>
+      <div class="chart-legend">
+        <span class="legend-item"><span class="legend-dot" style="background:#0B6E4F"></span>CARBORA</span>
+        <span class="legend-item"><span class="legend-dot" style="background:#D3D1C7"></span>Industrial Graphite</span>
+        <span style="margin-left:auto;font-size:11px;color:var(--text3)">EOL @ 10.000 siklus = 80%</span>
+      </div>
+      <div style="position:relative;height:240px">
+        <canvas id="lifecycleChart" role="img"></canvas>
+      </div>
+    </div>
+    <div class="energy-card">
+      <div>
+        <div class="energy-icon"><svg viewBox="0 0 24 24"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg></div>
+        <div class="energy-title">Energy Density Advantage</div>
+        <div class="energy-desc">Kapasitas spesifik 629.3 mAh/g vs. grafit sintetis 372 mAh/g — keunggulan 69% dalam penyimpanan energi per gram.</div>
+      </div>
+      <div>
+        <div class="energy-pct">+69%</div>
+        <div class="energy-label">VS INDUSTRIAL GRAPHITE</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Charging / Discharging Rate Chart -->
+  <div style="padding:0 40px 16px">
+    <div class="chart-card">
+      <div class="chart-title">C-Rate: Profil Arus Charging & Discharging</div>
+      <div class="chart-sub">Berdasarkan kapasitas spesifik 629.3 mAh/g — rentang operasi aktual</div>
+      <div class="chart-legend">
+        <span class="legend-item"><span class="legend-dot" style="background:#378ADD"></span>Charging (0.5–1C)</span>
+        <span class="legend-item"><span class="legend-dot" style="background:var(--teal-bright)"></span>Discharging (2–3C)</span>
+      </div>
+      <div style="position:relative;height:200px">
+        <canvas id="crateChart" role="img"></canvas>
+      </div>
+    </div>
+  </div>
+
+  <div class="molecular-section">
+    <div class="mol-img-card">
+      <div class="mol-overlay"></div>
+      <svg style="position:absolute;inset:0;width:100%;height:100%" viewBox="0 0 400 300">
+        <defs><radialGradient id="molGrad" cx="50%" cy="50%" r="50%"><stop offset="0%" style="stop-color:#2ECFA0;stop-opacity:0.3"/><stop offset="100%" style="stop-color:#0B6E4F;stop-opacity:0"/></radialGradient></defs>
+        <ellipse cx="200" cy="150" rx="120" ry="100" fill="url(#molGrad)"/>
+        <circle cx="200" cy="150" r="12" fill="#2ECFA0" opacity="0.9"/><circle cx="160" cy="110" r="8" fill="#1A9E75" opacity="0.8"/>
+        <circle cx="240" cy="110" r="8" fill="#5DCAA5" opacity="0.7"/><circle cx="250" cy="170" r="7" fill="#0B6E4F" opacity="0.9"/>
+        <circle cx="155" cy="185" r="7" fill="#9FE1CB" opacity="0.7"/><circle cx="130" cy="140" r="6" fill="#E1F5EE" opacity="0.5"/>
+        <circle cx="270" cy="140" r="6" fill="#2ECFA0" opacity="0.5"/><circle cx="220" cy="90" r="5" fill="#1A9E75" opacity="0.6"/>
+        <line x1="200" y1="150" x2="160" y2="110" stroke="#2ECFA0" stroke-width="1.5" opacity="0.5"/>
+        <line x1="200" y1="150" x2="240" y2="110" stroke="#2ECFA0" stroke-width="1.5" opacity="0.5"/>
+        <line x1="200" y1="150" x2="250" y2="170" stroke="#2ECFA0" stroke-width="1.5" opacity="0.5"/>
+        <line x1="200" y1="150" x2="155" y2="185" stroke="#2ECFA0" stroke-width="1.5" opacity="0.5"/>
+        <line x1="200" y1="150" x2="130" y2="140" stroke="#1A9E75" stroke-width="1" opacity="0.4"/>
+        <line x1="200" y1="150" x2="270" y2="140" stroke="#1A9E75" stroke-width="1" opacity="0.4"/>
+      </svg>
+      <div class="mol-caption">
+        <div class="mol-caption-title">Micro-Pore Topology</div>
+        <div class="mol-caption-desc">Nanostruktur turunan rotan yang memfasilitasi transport ion cepat. Kapasitas spesifik 629.3 mAh/g.</div>
+      </div>
+    </div>
+    <div class="mol-info-card">
+      <div class="mol-tag">SPESIFIKASI SISTEM</div>
+      <div class="mol-title">Parameter Kunci Baterai CARBORA</div>
+      <div class="mol-feature">
+        <div class="mol-feat-icon"><svg viewBox="0 0 24 24"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg></div>
+        <div>
+          <div class="mol-feat-title">Tegangan Sistem: 350V | Per Sel: 3.5V</div>
+          <div class="mol-feat-desc">Energi per sel 20.94 Wh. 100 sel dalam konfigurasi seri untuk mencapai tegangan pack nominal 350V.</div>
+        </div>
+      </div>
+      <div class="mol-feature">
+        <div class="mol-feat-icon"><svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></div>
+        <div>
+          <div class="mol-feat-title">Siklus Hidup: 10.000 Siklus (EOL 80%)</div>
+          <div class="mol-feat-desc">Degradasi terkelola: 0 → 100%, 5.000 → 90%, 10.000 → 80%. Umur pakai optimal dengan DoD 80%.</div>
+        </div>
+      </div>
+      <div class="mol-feature">
+        <div class="mol-feat-icon"><svg viewBox="0 0 24 24"><path d="M14 14.76V3.5a2.5 2.5 0 0 0-5 0v11.26a4.5 4.5 0 1 0 5 0z"/></svg></div>
+        <div>
+          <div class="mol-feat-title">Suhu Operasi: 15–30°C</div>
+          <div class="mol-feat-desc">Rentang operasi optimal yang lebih luas dibandingkan kompetitor. Efisiensi round-trip tetap stabil di 95%.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="lca-section">
+    <div class="lca-card">
+      <div class="lca-inner">
+        <div class="lca-left">
+          <h3>Life Cycle Assessment (LCA)</h3>
+          <p>Studi dampak end-to-end melacak karbon dari pemanenan rotan Indonesia hingga daur ulang baterai.</p>
+          <div class="lca-metrics">
+            <div class="lca-metric-row"><span class="lca-metric-name">Extraction Carbon</span><span class="lca-metric-val">-84%</span></div>
+            <div class="lca-metric-row"><span class="lca-metric-name">Processing Energy</span><span class="lca-metric-val">-62%</span></div>
+            <div class="lca-metric-row"><span class="lca-metric-name">Transport Impact</span><span class="lca-metric-val red">+12%</span></div>
+          </div>
+        </div>
+        <div class="co2-card">
+          <div class="co2-small">CARBORA BATTERY</div>
+          <div><span style="font-family:var(--font-display);font-size:32px;font-weight:700">2.4kg</span><span class="co2-unit" style="color:var(--text3);font-size:13px;margin-left:4px">CO₂e/kWh</span></div>
+          <div class="co2-bar-wrap"><div class="co2-bar-fill" id="co2CarboraBar" style="width:0%;background:var(--teal-light)"></div></div>
+          <div class="co2-label">Carbon footprint</div>
+        </div>
+        <div class="co2-card">
+          <div class="co2-small">STANDARD GRAPHITE</div>
+          <div><span style="font-family:var(--font-display);font-size:32px;font-weight:700">14.8kg</span><span style="color:var(--text3);font-size:13px;margin-left:4px">CO₂e/kWh</span></div>
+          <div class="co2-bar-wrap"><div class="co2-bar-fill" id="co2GraphiteBar" style="width:0%;background:#E24B4A"></div></div>
+          <div class="co2-label">Carbon footprint</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="gwh-section">
+    <div class="gwh-card">
+      <div class="gwh-header">
+        <h3>Historical Global Energy Impact</h3>
+        <p>Proyeksi penurunan konsumsi energi manufaktur global seiring peningkatan skala karbon-rotan.</p>
+      </div>
+      <div class="gwh-grid">
+        <div class="gwh-item"><div class="gwh-year">2020 PILOT</div><div class="gwh-val">12.4 GWh</div></div>
+        <div class="gwh-item"><div class="gwh-year">2021 SCALE</div><div class="gwh-val">48.9 GWh</div></div>
+        <div class="gwh-item"><div class="gwh-year">2022 COMMERCIAL</div><div class="gwh-val">142.1 GWh</div></div>
+        <div class="gwh-item highlight"><div class="gwh-year">2023 CURRENT</div><div class="gwh-val">598.3 GWh</div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="footer-light">
+    <div class="footer-logo">CARBORA</div>
+    <div class="footer-links">
+      <a class="footer-link" style="color:var(--teal);font-weight:600">Material Science</a>
+      <a class="footer-link">Life Cycle Assessment</a>
+      <a class="footer-link">Support</a>
+      <a class="footer-link">Privacy</a>
+    </div>
+    <div class="footer-copy">© 2024 CARBORA. Sustainable Energy Systems.</div>
+  </div>
+</div>
+
+<!-- ===== RESEARCH ===== -->
+<div id="page-research" class="page">
+  <div class="research-hero">
+    <h1>Material Science<br><em>Core Technology.</em></h1>
+    <p>Sintesis karbon perintis dari biomassa rotan — terobosan yang mendefinisikan ulang benchmark densitas energi dengan kapasitas 629.3 mAh/g dan siklus hidup 10.000 siklus.</p>
+  </div>
+
+  <div class="research-process">
+    <div class="process-card">
+      <div style="font-family:var(--font-display);font-size:20px;font-weight:600;margin-bottom:28px;color:rgba(255,255,255,0.9)">Carbon Synthesis Process</div>
+      <div class="process-steps">
+        <div class="process-step">
+          <div class="step-num">01</div>
+          <div class="step-title">Hydrothermal Carbonization</div>
+          <div class="step-desc">Proses energi rendah mengubah serat rotan mentah menjadi hydrochar prekursor tanpa bahan kimia keras. Mempertahankan struktur pori alami untuk kapasitas 629.3 mAh/g.</div>
+        </div>
+        <div class="process-step">
+          <div class="step-num">02</div>
+          <div class="step-title">Nitrogen Doping</div>
+          <div class="step-desc">Meningkatkan konduktivitas di tingkat molekuler untuk memastikan performa stabil selama siklus discharge cepat pada 2–3C.</div>
+        </div>
+        <div class="process-step">
+          <div class="step-num">03</div>
+          <div class="step-title">Solid State Electrolyte</div>
+          <div class="step-desc">Anoda CARBORA dioptimalkan untuk arsitektur baterai solid-state non-mudah terbakar generasi berikutnya dengan efisiensi 95%.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="research-science">
+    <div class="sci-card">
+      <div class="card-label">Kapasitas Spesifik</div>
+      <div class="sci-purity"><span id="sciCapCounter">0</span> <span style="font-size:22px">mAh/g</span></div>
+      <div style="font-size:12px;color:var(--text3);margin-bottom:16px">vs. Grafit Industri: 372 mAh/g (+69%)</div>
+      <!-- Bar comparison -->
+      <div style="margin-bottom:16px">
+        <div style="display:flex;justify-content:space-between;font-size:12px;color:var(--text2);margin-bottom:6px">
+          <span>CARBORA</span><span style="color:var(--teal);font-weight:700">629.3 mAh/g</span>
+        </div>
+        <div style="height:8px;background:#E8E4DC;border-radius:4px;overflow:hidden;margin-bottom:8px">
+          <div id="carboraCapBar" style="height:100%;width:0%;background:linear-gradient(90deg,var(--teal),var(--teal-bright));border-radius:4px;transition:width 2.5s ease"></div>
+        </div>
+        <div style="display:flex;justify-content:space-between;font-size:12px;color:var(--text2);margin-bottom:6px">
+          <span>Industrial Graphite</span><span style="color:var(--text3);font-weight:700">372 mAh/g</span>
+        </div>
+        <div style="height:8px;background:#E8E4DC;border-radius:4px;overflow:hidden">
+          <div id="graphiteCapBar" style="height:100%;width:0%;background:#D3D1C7;border-radius:4px;transition:width 2.5s 0.3s ease"></div>
+        </div>
+      </div>
+      <div class="sci-features">
+        <div class="sci-feat">
+          <div class="sci-feat-check"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div>
+          Kapasitas 629.3 mAh/g — 69% lebih tinggi dari grafit
+        </div>
+        <div class="sci-feat">
+          <div class="sci-feat-check"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div>
+          Indonesia memproduksi 80% rotan dunia
+        </div>
+        <div class="sci-feat">
+          <div class="sci-feat-check"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div>
+          Ekonomi sirkular — pengganti grafit tambang
+        </div>
+      </div>
+    </div>
+    <div class="sci-card">
+      <div class="card-label">Intelligent BMS Integration</div>
+      <p style="font-size:13px;color:var(--text2);line-height:1.7;margin-bottom:20px">Unit CARBORA dilengkapi Battery Management System bertenaga AI yang memantau 350V, 3.5V/sel, suhu 15–30°C, dan DoD 80% secara real-time.</p>
+      <!-- Lifecycle degradation mini chart -->
+      <div style="height:120px;position:relative;margin-bottom:16px">
+        <canvas id="miniLifecycle"></canvas>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:12px">
+        <div class="temp-row" style="background:var(--bg)">
+          <div class="temp-row-left">
+            <div class="temp-icon" style="background:rgba(55,138,221,0.1)"><svg viewBox="0 0 24 24" style="stroke:#378ADD"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg></div>
+            <div>
+              <div class="temp-label">Predictive Health</div>
+              <div class="temp-val" style="font-size:13px">Machine learning cell degradation</div>
+            </div>
+          </div>
+        </div>
+        <div class="temp-row" style="background:var(--dark);border:1px solid rgba(255,255,255,0.1)">
+          <div class="temp-row-left">
+            <div class="temp-icon" style="background:rgba(46,207,160,0.2)"><svg viewBox="0 0 24 24" style="stroke:#2ECFA0"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg></div>
+            <div>
+              <div class="temp-label" style="color:rgba(255,255,255,0.4)">Dynamic Balancing</div>
+              <div class="temp-val" style="color:white;font-size:13px">Real-time voltage balancing 3.5V/sel</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="thermal-section">
+    <div class="thermal-card">
+      <div class="thermal-inner">
+        <div class="thermal-stat">
+          <h3>Thermal Stability Analysis</h3>
+          <p>Karbon turunan rotan CARBORA beroperasi efisien pada suhu 15°C lebih tinggi dari padanan sintetis, dengan rentang operasi ideal 15–30°C.</p>
+          <div class="thermal-temp">15–30°C</div>
+          <div class="thermal-temp-sub">Rentang operasi optimal</div>
+          <div style="margin-top:16px;display:flex;flex-direction:column;gap:8px">
+            <div style="display:flex;justify-content:space-between;font-size:12px;color:var(--text2)">
+              <span>Min operasi</span><span style="font-weight:600;color:var(--teal)">15°C</span>
+            </div>
+            <div style="display:flex;justify-content:space-between;font-size:12px;color:var(--text2)">
+              <span>Max operasi</span><span style="font-weight:600;color:var(--teal)">30°C</span>
+            </div>
+            <div style="display:flex;justify-content:space-between;font-size:12px;color:var(--text2)">
+              <span>Efisiensi di rentang ini</span><span style="font-weight:600;color:var(--teal)">95%</span>
+            </div>
+          </div>
+        </div>
+        <div class="thermal-chart-wrap">
+          <canvas id="thermalChart" role="img"></canvas>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="footer-light">
+    <div class="footer-logo">CARBORA</div>
+    <div class="footer-links">
+      <a class="footer-link">Material Science</a>
+      <a class="footer-link">Life Cycle Assessment</a>
+      <a class="footer-link">Support</a>
+      <a class="footer-link">Privacy</a>
+    </div>
+    <div class="footer-copy">© 2024 CARBORA. Sustainable Energy Systems.</div>
+  </div>
+</div>
+
+<!-- ===== ABOUT ===== -->
+<div id="page-about" class="page">
+  <div class="about-hero">
+    <div class="about-hero-content">
+      <div class="about-tag">ESTABLISHED 2024</div>
+      <h1>Synthesizing the<br><span>Future of Energy.</span></h1>
+      <p>CARBORA menjembatani ilmu material dan pelestarian ekologi untuk mempercepat transisi global ke energi bersih.</p>
+    </div>
+    <div class="about-hero-img">
+      <svg class="geo-svg" viewBox="0 0 500 380">
+        <defs><linearGradient id="geoGrad" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" style="stop-color:#2ECFA0;stop-opacity:0.4"/><stop offset="100%" style="stop-color:#0B6E4F;stop-opacity:0.1"/></linearGradient></defs>
+        <polygon points="250,20 480,140 420,340 80,340 20,140" fill="url(#geoGrad)" stroke="#2ECFA0" stroke-width="0.5"/>
+        <polygon points="250,60 430,160 380,300 120,300 70,160" fill="none" stroke="#2ECFA0" stroke-width="0.5" opacity="0.5"/>
+        <polygon points="250,100 380,180 340,270 160,270 120,180" fill="none" stroke="#2ECFA0" stroke-width="0.8" opacity="0.7"/>
+        <polygon points="250,140 330,200 300,240 200,240 170,200" fill="rgba(46,207,160,0.15)" stroke="#2ECFA0" stroke-width="1"/>
+        <circle cx="250" cy="190" r="18" fill="#2ECFA0" opacity="0.3"/>
+        <circle cx="250" cy="190" r="8" fill="#2ECFA0" opacity="0.7"/>
+      </svg>
+    </div>
+  </div>
+  <div class="mission-section">
+    <div class="mission-card"><div class="mission-accent"></div><h3>Our Mission</h3><p>Merancang sistem penyimpanan energi paling berkelanjutan di dunia dengan mengintegrasikan kimia berkinerja tinggi (efisiensi 95%, siklus 10.000) dengan integritas siklus hidup.</p></div>
+    <div class="mission-card dark"><h3>Our Vision</h3><p>Dunia di mana energi karbon-netral adalah standar, didukung oleh ekonomi sirkular material yang menghormati batas geologis dan biologis planet kita.</p></div>
+  </div>
+  <div class="architects">
+    <h2>The Architects of Change</h2>
+    <p class="architects-sub">Pakar multidisiplin di persimpangan tiga pilar inti.</p>
+    <div class="arch-grid">
+      <div class="arch-card">
+        <div class="arch-icon" style="background:#0D1F1A"><svg viewBox="0 0 24 24"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg></div>
+        <div class="arch-title">Engineering</div>
+        <div class="arch-desc">Optimasi dinamika termal dan integritas struktural sistem solid-state 350V.</div>
+        <div class="arch-avatars"><div class="arch-av" style="background:#378ADD">JK</div><div class="arch-av" style="background:#0B6E4F">AS</div><span class="arch-count">+12</span></div>
+      </div>
+      <div class="arch-card">
+        <div class="arch-icon" style="background:#0B6E4F"><svg viewBox="0 0 24 24"><path d="M12 22c4.97 0 9-2.69 9-6s-4.03-6-9-6-9 2.69-9 6 4.03 6 9 6z"/><path d="M12 10C7.03 10 3 7.31 3 4s4.03-6 9-6 9 2.69 9 6-4.03 6-9 6z"/></svg></div>
+        <div class="arch-title">Ecology</div>
+        <div class="arch-desc">Penilaian dampak material baku melalui kerangka LCA mendalam.</div>
+        <div class="arch-avatars"><div class="arch-av" style="background:#1A9E75">MR</div><div class="arch-av" style="background:#0B6E4F">PL</div><span class="arch-count">+8</span></div>
+      </div>
+      <div class="arch-card">
+        <div class="arch-icon" style="background:#1A3A2E"><svg viewBox="0 0 24 24"><path d="M9 3H5a2 2 0 0 0-2 2v4m6-6h10a2 2 0 0 1 2 2v4M9 3v11m0 0H5a2 2 0 0 1-2-2V9m6 5h10a2 2 0 0 0 2-2V9m-6 9l-3-3m0 0l-3 3m3-3v6"/></svg></div>
+        <div class="arch-title">Chemistry</div>
+        <div class="arch-desc">Perintis komposit karbon-grafit dan stabilitas elektrolit generasi berikutnya.</div>
+        <div class="arch-avatars"><div class="arch-av" style="background:#5DCAA5">XW</div><div class="arch-av" style="background:#1A9E75">TN</div><span class="arch-count">+15</span></div>
+      </div>
+    </div>
+  </div>
+  <div class="roadmap-section">
+    <span class="roadmap-tag">PHASED SCALE IMPLEMENTATION 2024–2030</span>
+    <h2>Roadmap to Global Transition</h2>
+    <p class="roadmap-sub">Tonggak strategis menuju produksi energi sirkular penuh.</p>
+    <div class="roadmap-phases">
+      <div class="phase-item"><div class="phase-dot"></div><div class="phase-left"><div class="phase-num">PHASE 01</div><div class="phase-name-small">Material Genesis</div></div><div class="phase-card"><div class="phase-card-title">Material Genesis</div><div class="phase-card-desc">Komersialisasi teknologi anoda karbon-silikon proprietari kami. Kemitraan dengan 4 lembaga riset Nordic.</div></div></div>
+      <div class="phase-item"><div class="phase-dot" style="background:rgba(255,255,255,0.3)"></div><div class="phase-left"><div class="phase-num">PHASE 02</div><div class="phase-name-small">Grid Integration</div></div><div class="phase-card"><div class="phase-card-title">Grid Integration</div><div class="phase-card-desc">Penyebaran penyimpanan stasioner modular untuk pertanian surya kota di seluruh Eropa Utara.</div></div></div>
+      <div class="phase-item"><div class="phase-dot" style="background:rgba(255,255,255,0.3)"></div><div class="phase-left"><div class="phase-num">PHASE 03</div><div class="phase-name-small">Closed-Loop Scale</div></div><div class="phase-card"><div class="phase-card-title">Closed-Loop Scale</div><div class="phase-card-desc">Fasilitas daur ulang penuh beroperasi, memastikan 98% komponen baterai kembali ke rantai pasok.</div></div></div>
+    </div>
+  </div>
+  <div class="trusted">
+    <div class="trusted-label">Trusted by Industry &amp; Governance</div>
+    <div class="trusted-logos">
+      <div class="trusted-logo"><svg viewBox="0 0 24 24"><path d="M3 22v-20l18 10z"/></svg>EU ENERGY BOARD</div>
+      <div class="trusted-logo"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/></svg>NORDIC GRID</div>
+      <div class="trusted-logo"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/></svg>SYNERGY LABS</div>
+      <div class="trusted-logo"><svg viewBox="0 0 24 24"><path d="M12 22c4.97 0 9-2.69 9-6s-4.03-6-9-6-9 2.69-9 6 4.03 6 9 6z"/></svg>ECO-ALLIANCE</div>
+    </div>
+  </div>
+  <footer>
+    <div class="footer-logo">CARBORA</div>
+    <div style="font-size:12px;color:rgba(255,255,255,0.25);max-width:280px;line-height:1.6">© 2024 CARBORA Sustainable Energy Systems.</div>
+    <div class="footer-links"><a class="footer-link">Material Science</a><a class="footer-link">Life Cycle Assessment</a><a class="footer-link">Support</a><a class="footer-link">Privacy</a></div>
+    <div style="display:flex;gap:8px">
+      <div class="nav-icon" style="border-color:rgba(255,255,255,0.1)"><svg viewBox="0 0 24 24" style="width:14px;height:14px;stroke:rgba(255,255,255,0.4);fill:none;stroke-width:2"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg></div>
+    </div>
+  </footer>
+</div>
+
+<!-- ===== CONNECT ===== -->
+<div id="page-connect" class="page">
+  <div class="connect-main">
+    <div class="connect-left">
+      <h1>Ready to Electrify<br><span>Sustainably?</span></h1>
+      <p>Partner dengan kami untuk mengintegrasikan teknologi CARBORA ke platform kendaraan atau infrastruktur energi Anda.</p>
+      <div class="connect-stats">
+        <div><div class="connect-stat-val">10k+</div><div class="connect-stat-label">Tons of waste diverted</div></div>
+        <div><div class="connect-stat-val">95%</div><div class="connect-stat-label">Battery efficiency</div></div>
+        <div><div class="connect-stat-val">10k</div><div class="connect-stat-label">Siklus hidup</div></div>
+      </div>
+      <button class="btn-teal">
+        <svg viewBox="0 0 24 24"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+        Contact Partnership Team
+      </button>
+      <div style="margin-top:32px;padding:24px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:16px">
+        <div style="font-size:12px;font-weight:700;letter-spacing:1px;color:rgba(255,255,255,0.4);margin-bottom:16px">QUARTERLY IMPACT REPORT</div>
+        <div style="margin-bottom:14px">
+          <div style="display:flex;justify-content:space-between;font-size:13px;color:rgba(255,255,255,0.6);margin-bottom:8px"><span>Carbon Sequestration</span><span style="color:var(--teal-bright)">+26%</span></div>
+          <div style="height:4px;background:rgba(255,255,255,0.08);border-radius:2px"><div style="width:70%;height:100%;background:var(--teal-bright);border-radius:2px"></div></div>
+        </div>
+        <div>
+          <div style="display:flex;justify-content:space-between;font-size:13px;color:rgba(255,255,255,0.6);margin-bottom:8px"><span>Local Farmer Income Support</span><span style="color:var(--teal-bright)">+$1,358</span></div>
+          <div style="height:4px;background:rgba(255,255,255,0.08);border-radius:2px"><div style="width:45%;height:100%;background:var(--teal-bright);border-radius:2px"></div></div>
+        </div>
+      </div>
+    </div>
+    <div class="connect-right">
+      <div class="connect-form-title">Get in Touch</div>
+      <div class="connect-form-sub">Tim kami akan menghubungi Anda dalam 24 jam.</div>
+      <div class="form-group"><label class="form-label">Full Name</label><input class="form-input" type="text" id="wa-name" placeholder="Nama Anda"></div>
+      <div class="form-group"><label class="form-label">Company / Organization</label><input class="form-input" type="text" id="wa-company" placeholder="Perusahaan Anda"></div>
+      <div class="form-group"><label class="form-label">Email Address</label><input class="form-input" type="email" id="wa-email" placeholder="you@company.com"></div>
+      <div class="form-group"><label class="form-label">Partnership Type</label>
+        <select class="form-input" id="wa-type" style="appearance:none">
+          <option style="background:#132B24">Vehicle Integration</option>
+          <option style="background:#132B24">Grid Storage</option>
+          <option style="background:#132B24">Research Collaboration</option>
+          <option style="background:#132B24">Investment</option>
+        </select>
+      </div>
+      <div class="form-group"><label class="form-label">Message</label><textarea class="form-input" id="wa-message" placeholder="Ceritakan tentang proyek Anda..."></textarea></div>
+      <button class="form-submit" onclick="sendToWhatsApp()">
+        <svg viewBox="0 0 24 24" style="width:16px;height:16px;fill:white;display:inline;margin-right:8px;vertical-align:middle"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M12 0C5.373 0 0 5.373 0 12c0 2.127.558 4.126 1.533 5.862L.054 23.25a.75.75 0 0 0 .916.919l5.453-1.479A11.943 11.943 0 0 0 12 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 21.75a9.693 9.693 0 0 1-4.953-1.358l-.355-.212-3.678.997.983-3.596-.232-.371A9.694 9.694 0 0 1 2.25 12C2.25 6.615 6.615 2.25 12 2.25S21.75 6.615 21.75 12 17.385 21.75 12 21.75z"/></svg>
+        Send via WhatsApp
+      </button>
+    </div>
+  </div>
+  <footer style="background:rgba(255,255,255,0.03);border-top:1px solid rgba(255,255,255,0.06);padding:28px 40px;display:flex;justify-content:space-between;align-items:center">
+    <div style="font-family:var(--font-display);font-size:16px;font-weight:800;color:white">CARBORA</div>
+    <div style="display:flex;gap:24px"><a class="footer-link">Material Science</a><a class="footer-link">Life Cycle Assessment</a><a class="footer-link">Support</a></div>
+    <div class="footer-copy">© 2024 CARBORA. Sustainable Energy Systems.</div>
+  </footer>
+</div>
+
+<script>
+// =============================================
+// BATTERY SPECS (real data)
+// =============================================
+const SPECS = {
+  systemVoltage: 350,      // V
+  cellVoltage: 3.5,        // V
+  energyPerCell: 20.94,    // Wh
+  chargeMinC: 0.5,
+  chargeMaxC: 1.0,
+  dischargeMinC: 2.0,
+  dischargeMaxC: 3.0,
+  tempMin: 15,             // °C
+  tempMax: 30,             // °C
+  dod: 80,                 // %
+  efficiency: 95,          // %
+  lifecyclePoints: [{c:0,cap:100},{c:5000,cap:90},{c:10000,cap:80}],
+  specificCapacity: 629.3, // mAh/g
+};
+
+const nominalCapacity = SPECS.specificCapacity; // mAh/g
+// C-rate currents (mA/g)
+const chargeMin = SPECS.chargeMinC * nominalCapacity;  // 314.65
+const chargeMax = SPECS.chargeMaxC * nominalCapacity;  // 629.3
+const dischargeMin = SPECS.dischargeMinC * nominalCapacity; // 1258.6
+const dischargeMax = SPECS.dischargeMaxC * nominalCapacity; // 1887.9
+
+// =============================================
+// PAGE NAVIGATION
+// =============================================
+function showPage(id, el) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
+  document.getElementById('page-' + id).classList.add('active');
+  if (el) el.classList.add('active');
+  window.scrollTo(0, 0);
+  if (id === 'analytics') {
+    initAnalyticsCharts();
+    // Trigger immediate update of gauges and charts when switching to analytics
+    setTimeout(() => { updateAnalyticsGauges(liveState.soc); updateLifecycleChart(liveState.cycles); updateCrateChart(); }, 400);
+  }
+  if (id === 'research') initResearchCharts();
+}
+
+// =============================================
+// ANIMATED COUNTER HELPER
+// =============================================
+function animateValue(el, start, end, duration, decimals=0, suffix='') {
+  if (!el) return;
+  const startTime = performance.now();
+  function update(now) {
+    const elapsed = now - startTime;
+    const progress = Math.min(elapsed / duration, 1);
+    const ease = 1 - Math.pow(1 - progress, 3);
+    const val = start + (end - start) * ease;
+    el.textContent = val.toFixed(decimals) + suffix;
+    if (progress < 1) requestAnimationFrame(update);
+  }
+  requestAnimationFrame(update);
+}
+
+// =============================================
+// DASHBOARD INIT
+// =============================================
+function initDashboard() {
+  // SOC ring — 85%
+  const soc = 85;
+  const circumference = 2 * Math.PI * 80; // 502.65
+  const offset = circumference * (1 - soc / 100);
+  setTimeout(() => {
+    document.getElementById('socRing').style.strokeDashoffset = offset;
+    document.getElementById('dodBar').style.width = SPECS.dod + '%';
+    animateValue(document.getElementById('socVal'), 0, soc, 1800);
+  }, 200);
+
+  // SOH — 98.2% (at ~1650 cycles: interpolated between 0→100% and 5000→90%)
+  const cyclesRun = 1650;
+  const soh = 100 - (10 * cyclesRun / 5000); // ~96.7%
+  setTimeout(() => {
+    document.getElementById('sohBar').style.width = soh + '%';
+    animateValue(document.getElementById('sohVal'), 0, soh, 2000, 1);
+    animateValue(document.getElementById('cycleCount'), 0, cyclesRun, 2200);
+    document.getElementById('cycleBar').style.width = (cyclesRun / 10000 * 100) + '%';
+  }, 300);
+
+  // Temp range bar
+  const currentTemp = 22.4;
+  setTimeout(() => {
+    const leftPct = (SPECS.tempMin / SPECS.tempMax) * 100; // 50%
+    const widthPct = ((currentTemp - SPECS.tempMin) / SPECS.tempMax) * 100;
+    document.getElementById('tempRangeFill').style.left = leftPct + '%';
+    document.getElementById('tempRangeFill').style.width = widthPct + '%';
+  }, 400);
+
+  // Cell grid
+  const cg = document.getElementById('cellGrid');
+  const cellVoltages = [];
+  const cellNom = SPECS.cellVoltage;
+  for (let i = 0; i < 24; i++) {
+    const v = +(cellNom + (Math.random() - 0.5) * 0.06).toFixed(3);
+    cellVoltages.push(v);
+  }
+  const minV = Math.min(...cellVoltages);
+  const maxV = Math.max(...cellVoltages);
+  document.getElementById('cellMin').textContent = minV.toFixed(3);
+  document.getElementById('cellMax').textContent = maxV.toFixed(3);
+  const avgV = (cellVoltages.reduce((a,b)=>a+b,0)/cellVoltages.length).toFixed(3);
+  document.getElementById('cellAvg').textContent = avgV;
+
+  cellVoltages.forEach((v, i) => {
+    const c = document.createElement('div');
+    const deviation = Math.abs(v - cellNom);
+    const height = 20 + deviation * 400;
+    c.style.height = height + 'px';
+    c.className = 'cell' + (v < cellNom - 0.015 ? ' low' : v > cellNom + 0.015 ? ' high' : '');
+    c.title = `Cell ${i+1}: ${v}V`;
+    cg.appendChild(c);
+  });
+
+  // C-rate bars
+  setTimeout(() => {
+    document.getElementById('chargeLow').textContent = chargeMin.toFixed(0) + ' mA/g';
+    document.getElementById('chargeHigh').textContent = chargeMax.toFixed(0) + ' mA/g';
+    document.getElementById('dischargeLow').textContent = dischargeMin.toFixed(0) + ' mA/g';
+    document.getElementById('dischargeHigh').textContent = dischargeMax.toFixed(0) + ' mA/g';
+    // bars relative to max discharge
+    const maxRef = dischargeMax;
+    document.getElementById('chargeLowBar').style.width = (chargeMin/maxRef*100) + '%';
+    document.getElementById('chargeHighBar').style.width = (chargeMax/maxRef*100) + '%';
+    document.getElementById('dischargeLowBar').style.width = (dischargeMin/maxRef*100) + '%';
+    document.getElementById('dischargeHighBar').style.width = (dischargeMax/maxRef*100) + '%';
+  }, 500);
+
+  // Voltage history chart — centered around 350V
+  const voltCtx = document.getElementById('voltChart').getContext('2d');
+  const voltLabels = ['08:00','10:00','12:00','14:00','16:00','18:00','20:00'];
+  const voltData = [348, 351, 353, 350, 347, 349, 352];
+  liveState.voltChartRef = new Chart(voltCtx, {
+    type: 'line',
+    data: {
+      labels: voltLabels,
+      datasets: [{
+        data: voltData,
+        borderColor: '#0B6E4F',
+        backgroundColor: 'rgba(11,110,79,0.06)',
+        borderWidth: 2, fill: true, tension: 0.45,
+        pointRadius: 3, pointBackgroundColor: '#0B6E4F',
+        pointHoverRadius: 5,
+      }]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { display: false },
+        tooltip: {
+          mode: 'index', intersect: false,
+          callbacks: { label: ctx => ` ${ctx.parsed.y}V` }
+        }
+      },
+      scales: {
+        x: { grid: { display: false }, ticks: { color: '#7A8A85', font: { size: 11 } } },
+        y: { grid: { color: 'rgba(0,0,0,0.04)' }, ticks: { color: '#7A8A85', font: { size: 11 }, callback: v => v + 'V' }, min: 344, max: 356,
+          title: { display: true, text: 'Tegangan (V)', color: '#7A8A85', font: { size: 10 } }
+        }
+      }
+    }
+  });
+
+  // Live value simulator
+  startLiveSimulation();
+}
+
+// ============================================= 
+// LIVE SIMULATION STATE
+// =============================================
+const liveState = {
+  syncSec: 0,
+  soc: 85,
+  soh: 96.7,
+  cycles: 1650,
+  temp: 22.4,
+  voltage: 350.0,
+  currentKW: 2.5,
+  // For voltage chart history
+  voltHistory: [348, 351, 353, 350, 347, 349, 352],
+  voltLabels: ['08:00','10:00','12:00','14:00','16:00','18:00','20:00'],
+  voltChartRef: null,
+  analyticsChartRefs: { lifecycle: null, crate: null, miniLifecycle: null, thermal: null },
+};
+
+function _rand(min, max) { return min + Math.random() * (max - min); }
+function _clamp(v, min, max) { return Math.max(min, Math.min(max, v)); }
+
+function updateSocRing(newSoc) {
+  const circumference = 2 * Math.PI * 80; // 502.65
+  const offset = circumference * (1 - newSoc / 100);
+  const ring = document.getElementById('socRing');
+  if (ring) ring.style.strokeDashoffset = offset;
+  const el = document.getElementById('socVal');
+  if (el) animateValue(el, parseFloat(el.textContent) || liveState.soc, newSoc, 700, 0);
+}
+
+function updateSohBar(newSoh) {
+  const bar = document.getElementById('sohBar');
+  if (bar) bar.style.width = newSoh + '%';
+  const el = document.getElementById('sohVal');
+  if (el) animateValue(el, parseFloat(el.textContent.replace('%','')) || liveState.soh, newSoh, 700, 1);
+}
+
+function updateCycleBar(cycles) {
+  const bar = document.getElementById('cycleBar');
+  if (bar) bar.style.width = (cycles / 10000 * 100) + '%';
+  const el = document.getElementById('cycleCount');
+  if (el) animateValue(el, parseFloat(el.textContent) || liveState.cycles, cycles, 700, 0);
+  // Update estimated remaining
+  const rem = document.querySelector('.cycle-mini-card span[style*="rgba(255,255,255,0.6)"]');
+  if (rem) rem.textContent = Math.max(0, 10000 - cycles).toLocaleString() + ' siklus';
+}
+
+function updateCellGrid(voltage) {
+  const cg = document.getElementById('cellGrid');
+  if (!cg) return;
+  cg.innerHTML = '';
+  const cellVoltages = [];
+  for (let i = 0; i < 24; i++) {
+    const v = +(voltage / 100 + (Math.random() - 0.5) * 0.06).toFixed(3);
+    cellVoltages.push(v);
+  }
+  const minV = Math.min(...cellVoltages);
+  const maxV = Math.max(...cellVoltages);
+  const avgV = (cellVoltages.reduce((a,b)=>a+b,0)/cellVoltages.length).toFixed(3);
+  const cellNom = SPECS.cellVoltage;
+  const elMin = document.getElementById('cellMin');
+  const elMax = document.getElementById('cellMax');
+  const elAvg = document.getElementById('cellAvg');
+  if (elMin) elMin.textContent = minV.toFixed(3);
+  if (elMax) elMax.textContent = maxV.toFixed(3);
+  if (elAvg) elAvg.textContent = avgV;
+  cellVoltages.forEach((v, i) => {
+    const c = document.createElement('div');
+    const deviation = Math.abs(v - cellNom);
+    const height = 20 + deviation * 400;
+    c.style.height = height + 'px';
+    c.className = 'cell' + (v < cellNom - 0.015 ? ' low' : v > cellNom + 0.015 ? ' high' : '');
+    c.title = `Cell ${i+1}: ${v}V`;
+    cg.appendChild(c);
+  });
+}
+
+function updateVoltageChart(newVoltage) {
+  if (!liveState.voltChartRef) return;
+  const now = new Date();
+  const label = now.getHours().toString().padStart(2,'0') + ':' + now.getMinutes().toString().padStart(2,'0');
+  liveState.voltHistory.push(parseFloat(newVoltage));
+  liveState.voltHistory.shift();
+  liveState.voltLabels.push(label);
+  liveState.voltLabels.shift();
+  liveState.voltChartRef.data.labels = [...liveState.voltLabels];
+  liveState.voltChartRef.data.datasets[0].data = [...liveState.voltHistory];
+  liveState.voltChartRef.update('active');
+}
+
+function updateDodBar() {
+  const bar = document.getElementById('dodBar');
+  if (bar) bar.style.width = SPECS.dod + '%';
+}
+
+function updateAnalyticsGauges(soc) {
+  // Update DoD gauge with slight jitter
+  const dodJitter = _clamp(SPECS.dod + _rand(-1.5, 1.5), 78, 82);
+  const dodCirc = 2 * Math.PI * 54;
+  const dodRing = document.getElementById('dodRing');
+  if (dodRing) {
+    dodRing.style.strokeDashoffset = dodCirc * (1 - dodJitter / 100);
+    const el = document.getElementById('dodValDisplay');
+    if (el) animateValue(el, parseFloat(el.textContent) || SPECS.dod, Math.round(dodJitter), 700, 0);
+  }
+  // Efficiency jitter 94–96%
+  const effJitter = _clamp(SPECS.efficiency + _rand(-0.5, 0.5), 94, 96);
+  const effRing = document.getElementById('effRing');
+  if (effRing) {
+    effRing.style.strokeDashoffset = dodCirc * (1 - effJitter / 100);
+    const el = document.getElementById('effValDisplay');
+    if (el) animateValue(el, parseFloat(el.textContent) || SPECS.efficiency, Math.round(effJitter), 700, 0);
+  }
+  // Capacity ring stable with minor jitter
+  const capJitter = _clamp(SPECS.specificCapacity + _rand(-2, 2), 626, 632);
+  const capPct = Math.min(capJitter / 800, 1);
+  const capRing = document.getElementById('capRing');
+  if (capRing) {
+    capRing.style.strokeDashoffset = dodCirc * (1 - capPct);
+    const el = document.getElementById('capValDisplay');
+    if (el) animateValue(el, parseFloat(el.textContent) || SPECS.specificCapacity, capJitter, 700, 1);
+  }
+}
+
+function updateLifecycleChart(cycles) {
+  if (!liveState.analyticsChartRefs.lifecycle) return;
+  const chart = liveState.analyticsChartRefs.lifecycle;
+  const cycleLabels = ['0','1k','2k','3k','4k','5k','6k','7k','8k','9k','10k'];
+  const carboraData = cycleLabels.map((l, i) => {
+    const c = i * 1000;
+    const base = c <= 5000 ? 100 - (10 * c / 5000) : 90 - (10 * (c - 5000) / 5000);
+    return base + _rand(-0.3, 0.3);
+  });
+  chart.data.datasets[0].data = carboraData;
+  chart.update('active');
+}
+
+function updateCrateChart() {
+  if (!liveState.analyticsChartRefs.crate) return;
+  const chart = liveState.analyticsChartRefs.crate;
+  const cap = SPECS.specificCapacity;
+  const chargeMinJ = (SPECS.chargeMinC * cap) + _rand(-8, 8);
+  const chargeMaxJ = (SPECS.chargeMaxC * cap) + _rand(-8, 8);
+  const disMinJ = (SPECS.dischargeMinC * cap) + _rand(-15, 15);
+  const disMidJ = ((SPECS.dischargeMinC + SPECS.dischargeMaxC) / 2 * cap) + _rand(-15, 15);
+  const disMaxJ = (SPECS.dischargeMaxC * cap) + _rand(-15, 15);
+  chart.data.datasets[0].data = [chargeMinJ, chargeMinJ * 1.5 * _rand(0.96, 1.04), chargeMaxJ, null, null, null, null];
+  chart.data.datasets[1].data = [null, null, null, disMinJ * 0.75, disMinJ, disMidJ, disMaxJ];
+  chart.update('active');
+}
+
+function startLiveSimulation() {
+  // Initial volt chart ref stored after initDashboard
+  setTimeout(() => {
+    const voltCanvas = document.getElementById('voltChart');
+    if (voltCanvas) {
+      // Chart.js stores chart instance on canvas
+      const chartId = Object.keys(Chart.instances).find(k => Chart.instances[k].canvas === voltCanvas);
+      if (chartId) liveState.voltChartRef = Chart.instances[chartId];
+    }
+  }, 500);
+
+  let syncSec = 0;
+
+  setInterval(() => {
+    syncSec++;
+    const mins = Math.floor(syncSec / 60);
+    const secs = syncSec % 60;
+    const lastSyncEl = document.getElementById('lastSync');
+    if (lastSyncEl) lastSyncEl.textContent = syncSec < 60 ? `${syncSec}s ago` : `${mins}m ${secs}s ago`;
+
+    // === VOLTAGE: jitter ±1.5V around 350V ===
+    const voltJitter = _rand(-1.5, 1.5);
+    liveState.voltage = _clamp(350 + voltJitter, 347, 353);
+    const v = liveState.voltage.toFixed(1);
+    const voltLive = document.getElementById('voltLive');
+    if (voltLive) voltLive.textContent = v + ' V';
+    const packVolt = document.getElementById('packVoltLive');
+    if (packVolt) packVolt.textContent = v + ' V';
+
+    // === TEMP: random walk within 15–30°C ===
+    liveState.temp = _clamp(liveState.temp + _rand(-0.4, 0.4), 15, 30);
+    const t = liveState.temp.toFixed(1);
+    const tempLive = document.getElementById('tempLive');
+    if (tempLive) tempLive.textContent = t + ' °C';
+    const tempBarVal = document.getElementById('tempBarVal');
+    if (tempBarVal) tempBarVal.textContent = t;
+
+    // Temp range bar: position in 0–30°C range
+    const fillPct = (liveState.temp / 30) * 100;
+    const fill = document.getElementById('tempRangeFill');
+    if (fill) { fill.style.left = '0%'; fill.style.width = fillPct + '%'; }
+
+    const badge = document.getElementById('tempBadge');
+    if (badge) badge.textContent = liveState.temp >= 15 && liveState.temp <= 30 ? 'OPTIMAL' : 'WARNING';
+
+    // === CURRENT: discharge range 2–3C in kW ===
+    const curr = _rand(2, 3).toFixed(1);
+    liveState.currentKW = parseFloat(curr);
+    const currentLive = document.getElementById('currentLive');
+    if (currentLive) currentLive.textContent = '+' + curr + ' kW';
+
+    // === SOC: slow random walk 80–95% ===
+    liveState.soc = _clamp(liveState.soc + _rand(-0.5, 0.5), 80, 95);
+    updateSocRing(parseFloat(liveState.soc.toFixed(1)));
+
+    // === SOH: very slow drift ===
+    const targetSoh = 100 - (10 * liveState.cycles / 5000);
+    liveState.soh = _clamp(targetSoh + _rand(-0.1, 0.1), 80, 100);
+    updateSohBar(parseFloat(liveState.soh.toFixed(1)));
+
+    // === CYCLES: slowly increments ===
+    liveState.cycles = Math.min(10000, liveState.cycles + Math.floor(_rand(0, 2)));
+    updateCycleBar(liveState.cycles);
+
+    // === CELLS: refresh grid ===
+    updateCellGrid(liveState.voltage);
+
+    // === VOLTAGE CHART: push new point ===
+    updateVoltageChart(v);
+
+    // === DOD BAR in dashboard ===
+    updateDodBar();
+
+    // === ANALYTICS PAGE: update gauges + charts if visible ===
+    if (document.getElementById('page-analytics') && document.getElementById('page-analytics').classList.contains('active')) {
+      updateAnalyticsGauges(liveState.soc);
+      updateLifecycleChart(liveState.cycles);
+      updateCrateChart();
+    }
+
+    // === RESEARCH PAGE: update capacity bar counter if visible ===
+    if (document.getElementById('page-research') && document.getElementById('page-research').classList.contains('active')) {
+      const capJitter = _clamp(SPECS.specificCapacity + _rand(-2, 2), 626, 632);
+      const capEl = document.getElementById('sciCapCounter');
+      if (capEl) animateValue(capEl, parseFloat(capEl.textContent) || SPECS.specificCapacity, capJitter, 700, 1);
+    }
+
+    // === NOTIFIKASI: push random setiap ~9 detik (1 dari 3 tick) ===
+    if (Math.random() < 0.33) pushNotification();
+
+  }, 3000);
+}
+
+// =============================================
+// ANALYTICS CHARTS
+// =============================================
+let analyticsInited = false;
+function initAnalyticsCharts() {
+  if (analyticsInited) return; analyticsInited = true;
+
+  // Animate DoD, Efficiency, Capacity gauges
+  const dodCirc = 2 * Math.PI * 54; // 339.3
+  setTimeout(() => {
+    const dodOff = dodCirc * (1 - SPECS.dod / 100);
+    document.getElementById('dodRing').style.strokeDashoffset = dodOff;
+    animateValue(document.getElementById('dodValDisplay'), 0, SPECS.dod, 1800);
+
+    const effOff = dodCirc * (1 - SPECS.efficiency / 100);
+    document.getElementById('effRing').style.strokeDashoffset = effOff;
+    animateValue(document.getElementById('effValDisplay'), 0, SPECS.efficiency, 1800);
+
+    const capPct = Math.min(SPECS.specificCapacity / 800, 1); // relative to 800 max
+    const capOff = dodCirc * (1 - capPct);
+    document.getElementById('capRing').style.strokeDashoffset = capOff;
+    animateValue(document.getElementById('capValDisplay'), 0, SPECS.specificCapacity, 2000, 1);
+
+    // CO2 bars
+    document.getElementById('co2CarboraBar').style.width = '16%';
+    document.getElementById('co2GraphiteBar').style.width = '100%';
+  }, 300);
+
+  // Life Cycle Degradation Chart
+  const lcCtx = document.getElementById('lifecycleChart').getContext('2d');
+  const cycleLabels = ['0','1k','2k','3k','4k','5k','6k','7k','8k','9k','10k'];
+  // CARBORA data: 0→100%, 5000→90%, 10000→80%
+  const carboraData = cycleLabels.map((l, i) => {
+    const c = i * 1000;
+    if (c <= 5000) return 100 - (10 * c / 5000);
+    else return 90 - (10 * (c - 5000) / 5000);
+  });
+  // Industrial graphite degrades faster
+  const graphiteData = cycleLabels.map((l, i) => {
+    const c = i * 1000;
+    return Math.max(50, 100 - (35 * c / 10000) - (c > 5000 ? 10 : 0));
+  });
+
+  liveState.analyticsChartRefs.lifecycle = new Chart(lcCtx, {
+    type: 'line',
+    data: {
+      labels: cycleLabels,
+      datasets: [
+        {
+          label: 'CARBORA', data: carboraData,
+          borderColor: '#0B6E4F', backgroundColor: 'rgba(11,110,79,0.07)',
+          borderWidth: 2.5, fill: true, tension: 0.35,
+          pointRadius: 4, pointBackgroundColor: '#0B6E4F',
+        },
+        {
+          label: 'Industrial Graphite', data: graphiteData,
+          borderColor: '#A0A098', backgroundColor: 'rgba(0,0,0,0.02)',
+          borderWidth: 2, fill: false, tension: 0.35,
+          pointRadius: 0, borderDash: [5, 4],
+        }
+      ]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      animation: { duration: 1500, easing: 'easeOutQuart' },
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          mode: 'index', intersect: false,
+          callbacks: { label: ctx => ` ${ctx.dataset.label}: ${ctx.parsed.y.toFixed(1)}%` }
+        },
+        annotation: {}
+      },
+      scales: {
+        x: { grid: { display: false }, ticks: { color: '#7A8A85', font: { size: 11 } },
+          title: { display: true, text: 'Jumlah Siklus', color: '#7A8A85', font: { size: 11 } }
+        },
+        y: {
+          grid: { color: 'rgba(0,0,0,0.04)' },
+          ticks: { color: '#7A8A85', font: { size: 11 }, callback: v => v + '%' },
+          min: 50, max: 100,
+          title: { display: true, text: 'Kapasitas (%)', color: '#7A8A85', font: { size: 11 } }
+        }
+      }
+    }
+  });
+
+  // C-Rate Chart
+  const crCtx = document.getElementById('crateChart').getContext('2d');
+  const cRateLabels = ['0.5C','0.75C','1.0C','1.5C','2.0C','2.5C','3.0C'];
+  const chargingCurrent = [chargeMin, chargeMin*1.5, chargeMax, null, null, null, null];
+  const dischargingCurrent = [null, null, null, dischargeMin*0.75, dischargeMin, (dischargeMin+dischargeMax)/2, dischargeMax];
+
+  liveState.analyticsChartRefs.crate = new Chart(crCtx, {
+    data: {
+      labels: cRateLabels,
+      datasets: [
+        {
+          label: 'Charging (mA/g)', data: chargingCurrent,
+          backgroundColor: 'rgba(55,138,221,0.7)', borderRadius: 6,
+          borderSkipped: false,
+        },
+        {
+          label: 'Discharging (mA/g)', data: dischargingCurrent,
+          backgroundColor: 'rgba(46,207,160,0.8)', borderRadius: 6,
+          borderSkipped: false,
+        }
+      ]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      animation: { duration: 1500 },
+      plugins: {
+        legend: { display: false },
+        tooltip: { mode: 'index', intersect: false, callbacks: { label: ctx => ctx.parsed.y ? ` ${ctx.dataset.label}: ${ctx.parsed.y.toFixed(0)} mA/g` : '' } }
+      },
+      scales: {
+        x: { grid: { display: false }, ticks: { color: '#7A8A85', font: { size: 11 } } },
+        y: {
+          grid: { color: 'rgba(0,0,0,0.04)' },
+          ticks: { color: '#7A8A85', font: { size: 11 }, callback: v => v + ' mA/g' }
+        }
+      }
+    }
+  });
+}
+
+// =============================================
+// RESEARCH CHARTS
+// =============================================
+let researchInited = false;
+function initResearchCharts() {
+  if (researchInited) return; researchInited = true;
+
+  // Capacity comparison bars
+  setTimeout(() => {
+    document.getElementById('carboraCapBar').style.width = '100%';
+    document.getElementById('graphiteCapBar').style.width = (372/629.3*100) + '%';
+    animateValue(document.getElementById('sciCapCounter'), 0, SPECS.specificCapacity, 2000, 1);
+  }, 300);
+
+  // Mini lifecycle in BMS card
+  const miniCtx = document.getElementById('miniLifecycle').getContext('2d');
+  const miniLabels = ['0','5k','10k'];
+  const miniData = [100, 90, 80];
+  new Chart(miniCtx, {
+    type: 'line',
+    data: {
+      labels: miniLabels,
+      datasets: [{
+        data: miniData,
+        borderColor: '#0B6E4F',
+        backgroundColor: 'rgba(11,110,79,0.08)',
+        borderWidth: 2, fill: true, tension: 0.4,
+        pointRadius: 4, pointBackgroundColor: '#0B6E4F',
+      }]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      animation: { duration: 1500 },
+      plugins: { legend: { display: false },
+        tooltip: { callbacks: { label: ctx => ` Kapasitas: ${ctx.parsed.y}%` } }
+      },
+      scales: {
+        x: { grid: { display: false }, ticks: { color: '#7A8A85', font: { size: 10 } } },
+        y: { grid: { color: 'rgba(0,0,0,0.04)' }, ticks: { color: '#7A8A85', font: { size: 10 }, callback: v => v + '%' }, min: 75, max: 105 }
+      }
+    }
+  });
+
+  // Thermal chart — efficiency vs temp
+  const thermalCtx = document.getElementById('thermalChart').getContext('2d');
+  const temps = [0, 5, 10, 15, 20, 25, 30, 35, 40, 50, 60];
+  // CARBORA stays at 95% in 15–30°C range, degrades outside
+  const carboraEff = temps.map(t => {
+    if (t >= 15 && t <= 30) return 95;
+    if (t < 15) return Math.max(60, 95 - (15-t)*2.5);
+    return Math.max(55, 95 - (t-30)*2);
+  });
+  const syntheticEff = temps.map(t => {
+    if (t >= 20 && t <= 25) return 88;
+    if (t < 20) return Math.max(40, 88 - (20-t)*4);
+    return Math.max(30, 88 - (t-25)*3.5);
+  });
+
+  new Chart(thermalCtx, {
+    type: 'line',
+    data: {
+      labels: temps.map(t => t + '°C'),
+      datasets: [
+        {
+          label: 'CARBORA (95%)',
+          data: carboraEff,
+          borderColor: '#0B6E4F', borderWidth: 2.5, fill: false, tension: 0.4,
+          pointRadius: 3, pointBackgroundColor: '#0B6E4F',
+        },
+        {
+          label: 'Synthetic Graphite',
+          data: syntheticEff,
+          borderColor: '#D3D1C7', borderWidth: 2, fill: false, tension: 0.4,
+          pointRadius: 0, borderDash: [4, 4],
+        }
+      ]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      animation: { duration: 1500 },
+      plugins: {
+        legend: { position: 'top', labels: { color: '#7A8A85', font: { size: 11 }, boxWidth: 16, padding: 12 } },
+        tooltip: { callbacks: { label: ctx => ` ${ctx.dataset.label}: ${ctx.parsed.y.toFixed(0)}%` } }
+      },
+      scales: {
+        x: { grid: { display: false }, ticks: { color: '#7A8A85', font: { size: 11 } },
+          title: { display: true, text: 'Suhu (°C)', color: '#7A8A85', font: { size: 11 } }
+        },
+        y: {
+          grid: { color: 'rgba(0,0,0,0.04)' },
+          ticks: { color: '#7A8A85', font: { size: 11 }, callback: v => v + '%' },
+          min: 20, max: 100,
+          title: { display: true, text: 'Efisiensi (%)', color: '#7A8A85', font: { size: 11 } }
+        }
+      }
+    }
+  });
+}
+
+// =============================================
+// WHATSAPP CONTACT
+// =============================================
+function sendToWhatsApp() {
+  const name    = (document.getElementById('wa-name')   || {}).value    || '';
+  const company = (document.getElementById('wa-company')|| {}).value    || '';
+  const email   = (document.getElementById('wa-email')  || {}).value    || '';
+  const type    = (document.getElementById('wa-type')   || {}).value    || '';
+  const message = (document.getElementById('wa-message')|| {}).value    || '';
+
+  if (!name.trim()) { alert('Mohon isi nama Anda terlebih dahulu.'); return; }
+
+  const text = encodeURIComponent(
+    `Halo CARBORA! Saya tertarik untuk bermitra.\n\n` +
+    `*Nama:* ${name}\n` +
+    `*Perusahaan:* ${company}\n` +
+    `*Email:* ${email}\n` +
+    `*Tipe Partnership:* ${type}\n` +
+    `*Pesan:* ${message || '-'}`
+  );
+  window.open(`https://wa.me/6285712016662?text=${text}`, '_blank');
+}
+
+// =============================================
+// EXPORT DATA
+// =============================================
+function exportData() {
+  const rows = [
+    ['Parameter', 'Nilai', 'Satuan'],
+    ['Tegangan Sistem', SPECS.systemVoltage, 'V'],
+    ['Tegangan Per Sel', SPECS.cellVoltage, 'V'],
+    ['Energi Per Sel', SPECS.energyPerCell, 'Wh'],
+    ['Arus Charging Min', SPECS.chargeMinC + 'C (' + (SPECS.chargeMinC * SPECS.specificCapacity).toFixed(0) + ')', 'mA/g'],
+    ['Arus Charging Max', SPECS.chargeMaxC + 'C (' + (SPECS.chargeMaxC * SPECS.specificCapacity).toFixed(0) + ')', 'mA/g'],
+    ['Arus Discharging Min', SPECS.dischargeMinC + 'C (' + (SPECS.dischargeMinC * SPECS.specificCapacity).toFixed(0) + ')', 'mA/g'],
+    ['Arus Discharging Max', SPECS.dischargeMaxC + 'C (' + (SPECS.dischargeMaxC * SPECS.specificCapacity).toFixed(0) + ')', 'mA/g'],
+    ['Suhu Operasi Min', SPECS.tempMin, '°C'],
+    ['Suhu Operasi Max', SPECS.tempMax, '°C'],
+    ['Depth of Discharge', SPECS.dod, '%'],
+    ['Efisiensi Baterai', SPECS.efficiency, '%'],
+    ['Kapasitas Spesifik', SPECS.specificCapacity, 'mAh/g'],
+    ['Siklus 0', '100', '%'],
+    ['Siklus 5.000', '90', '%'],
+    ['Siklus 10.000 (EOL)', '80', '%'],
+    ['SOC Saat Ini', liveState.soc.toFixed(1), '%'],
+    ['SOH Saat Ini', liveState.soh.toFixed(1), '%'],
+    ['Siklus Berjalan', liveState.cycles, 'siklus'],
+    ['Tegangan Live', liveState.voltage.toFixed(1), 'V'],
+    ['Suhu Live', liveState.temp.toFixed(1), '°C'],
+    ['Waktu Ekspor', new Date().toLocaleString('id-ID'), ''],
+  ];
+
+  const csv = rows.map(r => r.map(v => `"${v}"`).join(',')).join('\n');
+  const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+  const url  = URL.createObjectURL(blob);
+  const a    = document.createElement('a');
+  a.href = url;
+  a.download = `CARBORA_Data_Export_${new Date().toISOString().slice(0,10)}.csv`;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+
+// =============================================
+// NOTIFICATION SYSTEM
+// =============================================
+const notifPool = [
+  { type:'green',  icon:'⚡', title:'Cell Balance Selesai',        desc:'Deviasi sel dikurangi ke 0.02V di seluruh pack.' },
+  { type:'blue',   icon:'🔋', title:'Charging Mode Aktif',         desc:'Fast charge 1C diaktifkan — estimasi penuh 45 menit.' },
+  { type:'green',  icon:'✅', title:'Suhu Optimal Tercapai',        desc:'Core temp stabil di rentang 15–30°C.' },
+  { type:'amber',  icon:'⚠️', title:'Tegangan Sel Slight Drift',    desc:'Sel #7 terdeteksi drift +0.03V — auto-leveling berjalan.' },
+  { type:'green',  icon:'📊', title:'SOH Diperbarui',               desc:'State of Health diperbarui: ' + (96 + Math.random()).toFixed(1) + '%. Kondisi prima.' },
+  { type:'blue',   icon:'🌡️', title:'Thermal Check Passed',         desc:'Semua zona termal dalam batas normal.' },
+  { type:'green',  icon:'🔄', title:'Siklus +1 Tercatat',           desc:'Siklus baru dicatat. Total: ' + (liveState ? liveState.cycles : 1650) + ' / 10.000.' },
+  { type:'amber',  icon:'⚡', title:'Discharge Rate Tinggi',        desc:'Discharge mencapai 2.9C — masih dalam batas aman (maks 3C).' },
+  { type:'green',  icon:'💾', title:'Data Tersinkronisasi',         desc:'Semua metrik berhasil disinkronisasi ke sistem BMS.' },
+  { type:'blue',   icon:'🛡️', title:'BMS Proteksi Aktif',           desc:'Algoritma balancing AI mempertahankan efisiensi 95%.' },
+];
+
+let notifications = [];
+let notifOpen = false;
+
+function getNotifColor(type) {
+  if (type === 'green') return 'var(--teal-light)';
+  if (type === 'amber') return '#BA7517';
+  return '#378ADD';
+}
+
+function getNotifBg(type) {
+  if (type === 'green') return 'rgba(26,158,117,0.1)';
+  if (type === 'amber') return 'rgba(186,117,23,0.1)';
+  return 'rgba(55,138,221,0.1)';
+}
+
+function renderNotifList() {
+  const list = document.getElementById('notif-list');
+  if (!list) return;
+  if (notifications.length === 0) {
+    list.innerHTML = '<div style="padding:24px;text-align:center;color:var(--text3);font-size:13px">Tidak ada notifikasi baru</div>';
+    return;
+  }
+  list.innerHTML = notifications.map((n, i) => `
+    <div style="padding:14px 20px;display:flex;gap:12px;align-items:flex-start;border-bottom:1px solid var(--border);background:${n.read ? 'transparent' : 'rgba(11,110,79,0.03)'}">
+      <div style="width:34px;height:34px;border-radius:9px;background:${getNotifBg(n.type)};display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:15px">${n.icon}</div>
+      <div style="flex:1">
+        <div style="display:flex;justify-content:space-between;align-items:center">
+          <span style="font-size:13px;font-weight:600;color:var(--text)">${n.title}</span>
+          ${!n.read ? '<span style="width:7px;height:7px;border-radius:50%;background:var(--teal);display:inline-block;flex-shrink:0"></span>' : ''}
+        </div>
+        <div style="font-size:11px;color:var(--text3);margin-top:3px;line-height:1.5">${n.desc}</div>
+        <div style="font-size:10px;color:var(--text3);margin-top:4px;opacity:0.6">${n.time}</div>
+      </div>
+    </div>
+  `).join('');
+}
+
+function updateNotifBadge() {
+  const badge = document.getElementById('notif-badge');
+  const unread = notifications.filter(n => !n.read).length;
+  if (badge) badge.style.display = unread > 0 ? 'block' : 'none';
+}
+
+function pushNotification() {
+  const item = notifPool[Math.floor(Math.random() * notifPool.length)];
+  const now = new Date();
+  const time = now.getHours().toString().padStart(2,'0') + ':' + now.getMinutes().toString().padStart(2,'0') + ':' + now.getSeconds().toString().padStart(2,'0');
+  notifications.unshift({ ...item, read: false, time, desc: item.desc.replace('1650', liveState ? liveState.cycles : 1650) });
+  if (notifications.length > 20) notifications.pop();
+  updateNotifBadge();
+  if (notifOpen) renderNotifList();
+}
+
+function toggleNotif() {
+  const panel = document.getElementById('notif-panel');
+  notifOpen = !notifOpen;
+  panel.style.display = notifOpen ? 'block' : 'none';
+  if (notifOpen) {
+    notifications.forEach(n => n.read = true);
+    updateNotifBadge();
+    renderNotifList();
+  }
+}
+
+function clearAllNotif() {
+  notifications = [];
+  updateNotifBadge();
+  renderNotifList();
+}
+
+// Close notif panel on outside click
+document.addEventListener('click', function(e) {
+  const wrap = document.getElementById('notif-wrap');
+  if (wrap && !wrap.contains(e.target)) {
+    notifOpen = false;
+    const panel = document.getElementById('notif-panel');
+    if (panel) panel.style.display = 'none';
+  }
+});
+
+// Seed initial notifications
+setTimeout(() => {
+  pushNotification();
+  pushNotification();
+  pushNotification();
+}, 800);
+
+// =============================================
+// MOBILE MENU
+// =============================================
+let mobileMenuOpen = false;
+function toggleMobileMenu() {
+  mobileMenuOpen = !mobileMenuOpen;
+  const drawer = document.getElementById('mobile-drawer');
+  if (drawer) drawer.style.display = mobileMenuOpen ? 'flex' : 'none';
+  // Animate hamburger to X
+  const hb1 = document.getElementById('hb1');
+  const hb2 = document.getElementById('hb2');
+  const hb3 = document.getElementById('hb3');
+  if (hb1) hb1.style.transform = mobileMenuOpen ? 'rotate(45deg) translate(4px,4px)' : '';
+  if (hb2) hb2.style.opacity   = mobileMenuOpen ? '0' : '1';
+  if (hb3) hb3.style.transform = mobileMenuOpen ? 'rotate(-45deg) translate(4px,-4px)' : '';
+}
+function closeMobileMenu() {
+  mobileMenuOpen = false;
+  const drawer = document.getElementById('mobile-drawer');
+  if (drawer) drawer.style.display = 'none';
+  const hb1 = document.getElementById('hb1');
+  const hb2 = document.getElementById('hb2');
+  const hb3 = document.getElementById('hb3');
+  if (hb1) hb1.style.transform = '';
+  if (hb2) hb2.style.opacity   = '1';
+  if (hb3) hb3.style.transform = '';
+}
+
+// =============================================
+// BOOT
+// =============================================
+initDashboard();
+</script>
+</body>
+</html>
